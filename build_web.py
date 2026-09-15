@@ -68,7 +68,7 @@ def build():
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>System Diagnostic Utility</title>
 <style>
   * {{
@@ -84,7 +84,7 @@ def build():
     height: 100%;
     background-color: #030608;
     color: #00ff66;
-    font-family: Consolas, "Cascadia Code", "Liberation Mono", "Courier New", monospace;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
     overflow: hidden;
     position: fixed;
   }}
@@ -98,32 +98,38 @@ def build():
     width: 100vw;
     height: 100vh;
     height: 100dvh;
-    background: #030608;
+    background: #04070a;
     color: #00ff66;
     overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     z-index: 99999;
     padding: 0;
   }}
 
-  /* CRT Scanlines */
+  /* Clean CRT Scanlines */
   #mobile-terminal::before {{
     content: "";
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-    background-size: 100% 3px, 3px 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.14),
+      rgba(0, 0, 0, 0.14) 1px,
+      transparent 1px,
+      transparent 2px
+    );
     pointer-events: none;
     z-index: 20;
   }}
 
-  /* CRT Vignette shadow */
+  /* Subtle CRT Vignette */
   #mobile-terminal::after {{
     content: "";
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.85);
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.65);
     pointer-events: none;
     z-index: 21;
   }}
@@ -134,90 +140,112 @@ def build():
     top: 0;
     left: 0;
     width: 100%;
-    height: 38px;
-    background: #090e13;
-    border-bottom: 1px solid #16241c;
+    padding: max(env(safe-area-inset-top, 0px), 8px) 14px 8px 14px;
+    background: rgba(8, 12, 18, 0.94);
+    border-bottom: 1px solid #162a1d;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 14px;
+    gap: 8px;
     z-index: 30;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
   }}
   .term-dots {{
     display: flex;
     gap: 6px;
     align-items: center;
+    flex-shrink: 0;
   }}
   .term-dot {{
     width: 10px;
     height: 10px;
     border-radius: 50%;
   }}
-  .dot-red {{ background: #ff5f56; border: 1px solid #e0443e; }}
-  .dot-yellow {{ background: #ffbd2e; border: 1px solid #dea123; }}
-  .dot-green {{ background: #27c93f; border: 1px solid #1aab29; }}
+  .dot-red {{ background: #ff5f56; box-shadow: 0 0 5px rgba(255, 95, 86, 0.6); }}
+  .dot-yellow {{ background: #ffbd2e; box-shadow: 0 0 5px rgba(255, 189, 46, 0.6); }}
+  .dot-green {{ background: #27c93f; box-shadow: 0 0 5px rgba(39, 201, 63, 0.6); }}
 
   .term-title {{
     font-size: 11px;
-    color: #4a7558;
-    letter-spacing: 0.6px;
+    color: #4ee685;
+    letter-spacing: 0.5px;
     font-weight: bold;
-    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    flex: 1;
   }}
   .term-badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-size: 9px;
-    background: rgba(255, 50, 50, 0.15);
-    color: #ff4444;
-    border: 1px solid rgba(255, 50, 50, 0.4);
-    padding: 2px 6px;
-    border-radius: 3px;
+    background: rgba(255, 59, 92, 0.15);
+    color: #ff3b5c;
+    border: 1px solid rgba(255, 59, 92, 0.4);
+    padding: 2px 7px;
+    border-radius: 10px;
     font-weight: bold;
-    animation: pulseBadge 1.4s infinite;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }}
+  .badge-dot {{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff3b5c;
+    box-shadow: 0 0 6px #ff3b5c;
+    animation: pulseBadge 1.2s infinite;
   }}
   @keyframes pulseBadge {{
-    0%, 100% {{ opacity: 1; }}
-    50% {{ opacity: 0.35; }}
+    0%, 100% {{ opacity: 1; transform: scale(1); }}
+    50% {{ opacity: 0.35; transform: scale(0.85); }}
   }}
 
   /* Terminal Body Container */
   .term-body {{
-    padding: 16px 14px 90px 14px;
-    max-width: 680px;
+    padding: 16px 14px calc(50px + env(safe-area-inset-bottom, 0px)) 14px;
+    max-width: 580px;
     margin: 0 auto;
-    font-size: clamp(13px, 3.8vw, 15px);
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: clamp(11.5px, 3.2vw, 13.5px);
     line-height: 1.55;
-    letter-spacing: 0.25px;
+    letter-spacing: 0.2px;
     word-break: break-word;
     white-space: pre-wrap;
-    text-shadow: 0 0 5px rgba(0, 255, 100, 0.35);
   }}
   .line {{
-    margin-bottom: 3px;
+    margin-bottom: 2px;
     word-break: break-word;
   }}
-  .line-green {{ color: #00ff66; }}
-  .line-red {{ color: #ff3838; font-weight: bold; text-shadow: 0 0 7px rgba(255, 40, 40, 0.55); }}
-  .line-yellow {{ color: #ffd228; font-weight: bold; }}
-  .line-cyan {{ color: #00d9ff; }}
-  .line-white {{ color: #ffffff; font-weight: bold; }}
-  .line-dim {{ color: #3e634b; }}
+  .line-green {{ color: #00ff66; text-shadow: 0 0 5px rgba(0, 255, 102, 0.35); }}
+  .line-red {{ color: #ff3b5c; font-weight: bold; text-shadow: 0 0 7px rgba(255, 59, 92, 0.55); }}
+  .line-yellow {{ color: #ffd228; text-shadow: 0 0 5px rgba(255, 210, 40, 0.35); }}
+  .line-cyan {{ color: #00e5ff; text-shadow: 0 0 5px rgba(0, 229, 255, 0.35); }}
+  .line-white {{ color: #ffffff; font-weight: bold; text-shadow: 0 0 6px rgba(255, 255, 255, 0.4); }}
+  .line-dim {{ color: #284432; letter-spacing: 1px; }}
   .line-box {{
-    color: #ff3838;
+    color: #ff3b5c;
     font-weight: bold;
-    background: rgba(255, 0, 0, 0.08);
-    padding: 2px 4px;
+    background: rgba(255, 59, 92, 0.08);
+    border-left: 2px solid #ff3b5c;
+    padding-left: 5px;
+    margin: 1px 0;
+    text-shadow: 0 0 6px rgba(255, 59, 92, 0.45);
   }}
 
   .cursor {{
     display: inline-block;
     width: 8px;
-    height: 15px;
+    height: 14px;
     background-color: #00ff66;
-    vertical-align: middle;
-    margin-left: 2px;
-    box-shadow: 0 0 8px rgba(0, 255, 100, 0.7);
-    animation: blink 0.75s infinite;
+    vertical-align: -2px;
+    margin-left: 3px;
+    box-shadow: 0 0 8px rgba(0, 255, 102, 0.8);
+    animation: blink 0.7s infinite;
   }}
   @keyframes blink {{
     0%, 49% {{ opacity: 1; }}
@@ -226,14 +254,14 @@ def build():
 
   /* Screen Twitch / Glitch */
   .glitch-twitch {{
-    animation: twitch 0.12s ease-in-out;
+    animation: twitch 0.14s ease-in-out;
   }}
   @keyframes twitch {{
     0% {{ transform: translate(0, 0); }}
-    25% {{ transform: translate(-3px, 1px); }}
-    50% {{ transform: translate(3px, -1px); }}
+    25% {{ transform: translate(-3px, 2px) skewX(-1deg); filter: hue-rotate(60deg); }}
+    50% {{ transform: translate(3px, -2px) skewX(1deg); filter: hue-rotate(-60deg); }}
     75% {{ transform: translate(-2px, -1px); }}
-    100% {{ transform: translate(0, 0); }}
+    100% {{ transform: translate(0, 0); filter: none; }}
   }}
 
   /* Desktop Container */
@@ -361,8 +389,8 @@ def build():
       <div class="term-dot dot-yellow"></div>
       <div class="term-dot dot-green"></div>
     </div>
-    <div class="term-title" id="term-header-title">root@mobile-node:~ (/bin/exploit)</div>
-    <div class="term-badge">● EXPLOIT ACTIVE</div>
+    <div class="term-title" id="term-header-title">root@mobile:~ (exploit_v4)</div>
+    <div class="term-badge"><span class="badge-dot"></span> LIVE</div>
   </div>
 
   <div class="term-body" id="mobile-content">
@@ -443,170 +471,170 @@ function detectDevice() {{
    MOBILE ROAST SCRIPTS & THREATENING / COMEDIC CADENCE
    ========================================================================== */
 const IPHONE_SCRIPT = [
-  {{ text: "[00:44:01] INITIALIZING REMOTE EXPLOIT PIPELINE...", color: "line-green", speed: 40, pause: 650 }},
-  {{ text: "[00:44:02] BYPASSING MOBILE GATEWAY FIREWALL......... [OK]", color: "line-green", speed: 40, pause: 700 }},
-  {{ text: "[00:44:03] INJECTING WEAPONIZED KERNEL PAYLOAD....... [OK]", color: "line-green", speed: 40, pause: 750 }},
-  {{ text: "[00:44:04] ROOT PRIVILEGES ELEVATED: UID=0 (KERNEL)", color: "line-yellow", speed: 42, pause: 900 }},
+  {{ text: "root@iphone:~# ./stage_exploit", color: "line-cyan", speed: 42, pause: 600 }},
+  {{ text: "[+] BYPASSING GATEWAY FIREWALL... [OK]", color: "line-green", speed: 38, pause: 650 }},
+  {{ text: "[+] INJECTING KERNEL PAYLOAD..... [OK]", color: "line-green", speed: 38, pause: 700 }},
+  {{ text: "[+] ROOT ACCESS: UID=0 (SYSTEM)", color: "line-yellow", speed: 40, pause: 850 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "[!] TARGET:   APPLE IPHONE", color: "line-red", speed: 42, pause: 900, twitch: true }},
+  {{ text: "[!] BATTERY:  14% [DRAINING RAPIDLY]", color: "line-yellow", speed: 38, pause: 750 }},
+  {{ text: "[!] STORAGE:  99% [USELESS SELFIES]", color: "line-yellow", speed: 38, pause: 800 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "[*] SCANNING DIRECTORIES...", color: "line-red", speed: 40, pause: 750 }},
+  {{ text: "[EXTRACT] /DCIM/selfie_01.jpg .. [OK]", color: "line-red", speed: 36, pause: 650 }},
+  {{ text: "[EXTRACT] /WhatsApp/chats.db ... [OK]", color: "line-red", speed: 36, pause: 650 }},
+  {{ text: "[EXTRACT] /Notes/passwords.txt . [OK]", color: "line-red", speed: 36, pause: 650 }},
+  {{ text: "[EXTRACT] /Safari/3am_search.db  [OK]", color: "line-red", speed: 36, pause: 950, twitch: true }},
   {{ text: "", pause: 350 }},
-  {{ text: "============================================================", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "[+] TARGET HARDWARE: APPLE IPHONE", color: "line-red", speed: 45, pause: 1100, twitch: true }},
-  {{ text: "[+] TELEMETRY:       LOCATION COMPROMISED", color: "line-yellow", speed: 40, pause: 800 }},
-  {{ text: "[+] POWER / BATTERY: 14% [DRAINING FASTER THAN YOUR PRIDE]", color: "line-yellow", speed: 40, pause: 950 }},
-  {{ text: "[+] STORAGE:         99.8% FULL (14,219 USELESS SCREENSHOTS)", color: "line-yellow", speed: 40, pause: 1000 }},
-  {{ text: "============================================================", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "[!] SCANNING LOCAL DIRECTORIES FOR EXFILTRATION...", color: "line-red", speed: 42, pause: 850 }},
-  {{ text: "[EXFILTRATE] /DCIM/Camera/embarrassing_selfie_v2.jpg ..... [UPLOADED]", color: "line-red", speed: 38, pause: 750 }},
-  {{ text: "[EXFILTRATE] /WhatsApp/chat_history_archive.db .......... [EXTRACTED]", color: "line-red", speed: 38, pause: 750 }},
-  {{ text: "[EXFILTRATE] /Notes/passwords_dont_open_serious.txt ..... [HELD HOSTAGE]", color: "line-red", speed: 38, pause: 750 }},
-  {{ text: "[EXFILTRATE] /Safari/Browsing_History_3AM.db ........... [LEAKED]", color: "line-red", speed: 38, pause: 1100, twitch: true }},
-  {{ text: "", pause: 400 }},
-  {{ text: "╔══════════════════════════════════════════════════════════╗", color: "line-box", speed: 14, pause: 250 }},
-  {{ text: "║  ALL YOUR MOBILE DATA HAS BEEN ENCRYPTED (AES-9000).     ║", color: "line-box", speed: 38, pause: 700 }},
-  {{ text: "║  SEND 500 DOGECOIN BEFORE WE AUTO-SHARE TO YOUR CONTACTS ║", color: "line-box", speed: 38, pause: 800 }},
-  {{ text: "╚══════════════════════════════════════════════════════════╝", color: "line-box", speed: 14, pause: 1400, twitch: true }},
-  {{ text: "", pause: 500 }},
-  {{ text: "...", color: "line-yellow", speed: 180, pause: 1400 }},
-  {{ text: "WAIT.", color: "line-white", speed: 65, pause: 1200 }},
-  {{ text: "HOLD ON.", color: "line-white", speed: 65, pause: 1100 }},
-  {{ text: "STOP THE ATTACK PROTOCOL.", color: "line-yellow", speed: 50, pause: 1200 }},
-  {{ text: "", pause: 400 }},
-  {{ text: "YOU OPENED THIS ON A PHONE?! 💀", color: "line-red", speed: 55, pause: 1800, twitch: true }},
-  {{ text: "ARE YOU SERIOUS RIGHT NOW?", color: "line-white", speed: 48, pause: 1300 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "THIS IS A COMPUTER PRANK.", color: "line-white", speed: 46, pause: 1200 }},
-  {{ text: "NOT A TIKTOK FILTER.", color: "line-green", speed: 42, pause: 650 }},
-  {{ text: "NOT AN INSTAGRAM REEL.", color: "line-green", speed: 42, pause: 650 }},
-  {{ text: "NOT A SCREENSHOT.", color: "line-green", speed: 42, pause: 800 }},
-  {{ text: "A. COMPUTER. PRANK.", color: "line-white", speed: 65, pause: 1600, twitch: true }},
-  {{ text: "", pause: 400 }},
-  {{ text: "------------------------------------------------------------", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "[MALWARE OPERATOR LOG]", color: "line-cyan", speed: 40, pause: 650 }},
-  {{ text: "> Operator 1: Bro, the victim doesn't even have a keyboard.", color: "line-cyan", speed: 42, pause: 1100 }},
-  {{ text: "> Operator 2: What do we even encrypt? Their mobile selfies?!", color: "line-cyan", speed: 42, pause: 1100 }},
-  {{ text: "> Operator 1: Abort exploit. This is embarrassing for all of us.", color: "line-cyan", speed: 42, pause: 1300 }},
-  {{ text: "------------------------------------------------------------", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "MOBILE DEVICE STATUS:", color: "line-white", speed: 42, pause: 700 }},
-  {{ text: "❌ INSUFFICIENT CHAOS (Screen too small)", color: "line-red", speed: 40, pause: 600 }},
-  {{ text: "❌ INSUFFICIENT KEYBOARD (Typing with thumbs)", color: "line-red", speed: 40, pause: 600 }},
-  {{ text: "❌ INSUFFICIENT COMMON SENSE (Clicked unknown link)", color: "line-red", speed: 40, pause: 750 }},
-  {{ text: "💀 PANIC LEVEL: 97% (Visibly sweating)", color: "line-yellow", speed: 45, pause: 1300, twitch: true }},
-  {{ text: "", pause: 400 }},
-  {{ text: "CONCLUSION:", color: "line-white", speed: 45, pause: 1000 }},
-  {{ text: "YOU PAID ALL THAT MONEY FOR AN IPHONE...", color: "line-yellow", speed: 50, pause: 1300 }},
-  {{ text: "JUST TO GET EXCLUDED AND BULLIED BY A WEBPAGE. 😭", color: "line-red", speed: 55, pause: 2000, twitch: true }},
+  {{ text: "┌──────────────────────────────────┐", color: "line-box", speed: 12, pause: 200 }},
+  {{ text: "│  ALL MOBILE FILES ENCRYPTED!     │", color: "line-box", speed: 36, pause: 700 }},
+  {{ text: "│  RANSOM DEMAND: 500 DOGECOIN     │", color: "line-box", speed: 36, pause: 800 }},
+  {{ text: "└──────────────────────────────────┘", color: "line-box", speed: 12, pause: 1300, twitch: true }},
   {{ text: "", pause: 450 }},
-  {{ text: "YOUR FILES ARE 100% SAFE.", color: "line-green", speed: 42, pause: 900 }},
-  {{ text: "UNFORTUNATELY, YOUR DIGNITY DID NOT SURVIVE.", color: "line-yellow", speed: 46, pause: 1300 }},
+  {{ text: "...", color: "line-yellow", speed: 180, pause: 1300 }},
+  {{ text: "WAIT.", color: "line-white", speed: 65, pause: 1100 }},
+  {{ text: "HOLD ON.", color: "line-white", speed: 65, pause: 1000 }},
+  {{ text: "STOP THE ATTACK PROTOCOL.", color: "line-yellow", speed: 48, pause: 1100 }},
   {{ text: "", pause: 350 }},
-  {{ text: "NICE TRY, NPC. COME BACK WITH A LAPTOP. 💀", color: "line-white", speed: 50, pause: 1600 }},
-  {{ text: "TERMINATING MOBILE SESSION IN 3... 2... 1...", color: "line-dim", speed: 40, pause: 1400 }},
-  {{ text: "BYE. 👋", color: "line-white", speed: 65, pause: 4000 }}
+  {{ text: "YOU OPENED THIS ON A PHONE?! 💀", color: "line-red", speed: 52, pause: 1600, twitch: true }},
+  {{ text: "ARE YOU SERIOUS RIGHT NOW?", color: "line-white", speed: 46, pause: 1100 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "THIS IS A COMPUTER PRANK.", color: "line-white", speed: 45, pause: 1000 }},
+  {{ text: "NOT A TIKTOK FILTER.", color: "line-green", speed: 40, pause: 600 }},
+  {{ text: "NOT AN INSTAGRAM REEL.", color: "line-green", speed: 40, pause: 600 }},
+  {{ text: "NOT A SCREENSHOT.", color: "line-green", speed: 40, pause: 700 }},
+  {{ text: "A. COMPUTER. PRANK.", color: "line-white", speed: 60, pause: 1400, twitch: true }},
+  {{ text: "", pause: 350 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "[OPERATOR CHATTER]", color: "line-cyan", speed: 40, pause: 600 }},
+  {{ text: "> Op 1: Bro, victim has no keyboard.", color: "line-cyan", speed: 40, pause: 1000 }},
+  {{ text: "> Op 2: What do we encrypt? Selfies?!", color: "line-cyan", speed: 40, pause: 1000 }},
+  {{ text: "> Op 1: Abort exploit. Embarrassing.", color: "line-cyan", speed: 40, pause: 1200 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "MOBILE DIAGNOSTIC:", color: "line-white", speed: 40, pause: 650 }},
+  {{ text: "❌ INSUFFICIENT SCREEN SIZE", color: "line-red", speed: 38, pause: 550 }},
+  {{ text: "❌ INSUFFICIENT KEYBOARD", color: "line-red", speed: 38, pause: 550 }},
+  {{ text: "❌ INSUFFICIENT COMMON SENSE", color: "line-red", speed: 38, pause: 700 }},
+  {{ text: "💀 PANIC LEVEL: 99% (SWEATING)", color: "line-yellow", speed: 42, pause: 1100, twitch: true }},
+  {{ text: "", pause: 350 }},
+  {{ text: "CONCLUSION:", color: "line-white", speed: 45, pause: 900 }},
+  {{ text: "YOU BOUGHT A $1,200 IPHONE...", color: "line-yellow", speed: 48, pause: 1200 }},
+  {{ text: "JUST TO GET BULLIED BY A LINK. 😭", color: "line-red", speed: 52, pause: 1800, twitch: true }},
+  {{ text: "", pause: 400 }},
+  {{ text: "YOUR FILES ARE 100% SAFE.", color: "line-green", speed: 40, pause: 800 }},
+  {{ text: "YOUR DIGNITY DID NOT SURVIVE.", color: "line-yellow", speed: 44, pause: 1100 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "NICE TRY, NPC.", color: "line-white", speed: 46, pause: 800 }},
+  {{ text: "COME BACK WITH A LAPTOP. 💀", color: "line-white", speed: 48, pause: 1400 }},
+  {{ text: "TERMINATING IN 3... 2... 1...", color: "line-dim", speed: 38, pause: 1200 }},
+  {{ text: "BYE. 👋", color: "line-white", speed: 60, pause: 4000 }}
 ];
 
 const ANDROID_PHONE_SCRIPT = [
-  {{ text: "[00:44:01] INITIALIZING REMOTE EXPLOIT PIPELINE...", color: "line-green", speed: 40, pause: 650 }},
-  {{ text: "[00:44:02] SCANNING ADB / SIDELOAD INTERFACES......... [OK]", color: "line-green", speed: 40, pause: 700 }},
-  {{ text: "[00:44:03] INJECTING STAGED APK PAYLOAD.............. [OK]", color: "line-green", speed: 40, pause: 750 }},
-  {{ text: "[00:44:04] ROOT ACCESS GRANTED: SELINUX PERMISSIVE", color: "line-yellow", speed: 42, pause: 900 }},
+  {{ text: "root@android:~# ./stage_exploit", color: "line-cyan", speed: 42, pause: 600 }},
+  {{ text: "[+] SCANNING ADB INTERFACE... [OK]", color: "line-green", speed: 38, pause: 650 }},
+  {{ text: "[+] ELEVATING PRIVILEGES..... [OK]", color: "line-green", speed: 38, pause: 700 }},
+  {{ text: "[+] SELINUX STATUS: PERMISSIVE", color: "line-yellow", speed: 40, pause: 850 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "[!] TARGET:   ANDROID PHONE", color: "line-red", speed: 42, pause: 900, twitch: true }},
+  {{ text: "[!] BATTERY:  14% (DYING)", color: "line-yellow", speed: 38, pause: 750 }},
+  {{ text: "[!] STORAGE:  99% (CLEANER APPS)", color: "line-yellow", speed: 38, pause: 800 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "[*] TARGETING SENSITIVE DATA...", color: "line-red", speed: 40, pause: 750 }},
+  {{ text: "[EXTRACT] /DCIM/embarrassing.jpg [OK]", color: "line-red", speed: 36, pause: 650 }},
+  {{ text: "[EXTRACT] /data/whatsapp.db ... [OK]", color: "line-red", speed: 36, pause: 650 }},
+  {{ text: "[EXTRACT] /Download/virus.apk . [OK]", color: "line-red", speed: 36, pause: 650 }},
+  {{ text: "[EXTRACT] /Chrome/3am_history . [OK]", color: "line-red", speed: 36, pause: 950, twitch: true }},
   {{ text: "", pause: 350 }},
-  {{ text: "============================================================", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "[+] TARGET HARDWARE: ANDROID PHONE", color: "line-red", speed: 45, pause: 1100, twitch: true }},
-  {{ text: "[+] SECURITY SUITE:  PLAY PROTECT: CONFUSED & CRYING", color: "line-yellow", speed: 40, pause: 800 }},
-  {{ text: "[+] POWER / BATTERY: 14% [DRAINING FASTER THAN YOUR PRIDE]", color: "line-yellow", speed: 40, pause: 950 }},
-  {{ text: "[+] STORAGE:         99.8% FULL (47 USELESS CLEANER APPS)", color: "line-yellow", speed: 40, pause: 1000 }},
-  {{ text: "============================================================", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "[!] TARGETING SENSITIVE DATA STREAMS...", color: "line-red", speed: 42, pause: 850 }},
-  {{ text: "[EXFILTRATE] /storage/emulated/0/DCIM/embarrassing_01.jpg .. [UPLOADED]", color: "line-red", speed: 38, pause: 750 }},
-  {{ text: "[EXFILTRATE] /data/data/com.whatsapp/databases ............. [EXTRACTED]", color: "line-red", speed: 38, pause: 750 }},
-  {{ text: "[EXFILTRATE] /Download/DefinitelyNotVirus.apk .............. [HELD HOSTAGE]", color: "line-red", speed: 38, pause: 750 }},
-  {{ text: "[EXFILTRATE] /Chrome/History_3AM.db ........................ [LEAKED]", color: "line-red", speed: 38, pause: 1100, twitch: true }},
-  {{ text: "", pause: 400 }},
-  {{ text: "╔══════════════════════════════════════════════════════════╗", color: "line-box", speed: 14, pause: 250 }},
-  {{ text: "║  ALL YOUR MOBILE DATA HAS BEEN ENCRYPTED (AES-9000).     ║", color: "line-box", speed: 38, pause: 700 }},
-  {{ text: "║  SEND 500 DOGECOIN BEFORE WE AUTO-SHARE TO YOUR CONTACTS ║", color: "line-box", speed: 38, pause: 800 }},
-  {{ text: "╚══════════════════════════════════════════════════════════╝", color: "line-box", speed: 14, pause: 1400, twitch: true }},
-  {{ text: "", pause: 500 }},
-  {{ text: "...", color: "line-yellow", speed: 180, pause: 1400 }},
-  {{ text: "WAIT.", color: "line-white", speed: 65, pause: 1200 }},
-  {{ text: "HOLD ON.", color: "line-white", speed: 65, pause: 1100 }},
-  {{ text: "NICE TRY, NPC. 💀", color: "line-red", speed: 55, pause: 1700, twitch: true }},
-  {{ text: "", pause: 350 }},
-  {{ text: "THIS PRANK REQUIRES A REAL COMPUTER.", color: "line-white", speed: 48, pause: 1200 }},
-  {{ text: "YOUR PHONE IS NOT READY FOR THIS LEVEL OF CHAOS.", color: "line-yellow", speed: 46, pause: 1500 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "------------------------------------------------------------", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "MOBILE STATUS:", color: "line-white", speed: 40, pause: 650 }},
-  {{ text: "❌ KEYBOARD NOT FOUND", color: "line-red", speed: 38, pause: 600 }},
-  {{ text: "❌ DESKTOP MODE NOT FOUND", color: "line-red", speed: 38, pause: 600 }},
-  {{ text: "❌ COMMON SENSE NOT FOUND", color: "line-red", speed: 42, pause: 900 }},
-  {{ text: "💀 PANIC LEVEL: 97%", color: "line-yellow", speed: 45, pause: 1200, twitch: true }},
-  {{ text: "------------------------------------------------------------", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "YOU INSTALLED 47 SYSTEM CLEANER APPS...", color: "line-yellow", speed: 48, pause: 1200 }},
-  {{ text: "AND YOU STILL CLICKED A RANDOM SUSPICIOUS LINK. 😭", color: "line-red", speed: 52, pause: 1800, twitch: true }},
+  {{ text: "┌──────────────────────────────────┐", color: "line-box", speed: 12, pause: 200 }},
+  {{ text: "│  ALL MOBILE FILES ENCRYPTED!     │", color: "line-box", speed: 36, pause: 700 }},
+  {{ text: "│  RANSOM DEMAND: 500 DOGECOIN     │", color: "line-box", speed: 36, pause: 800 }},
+  {{ text: "└──────────────────────────────────┘", color: "line-box", speed: 12, pause: 1300, twitch: true }},
   {{ text: "", pause: 450 }},
-  {{ text: "YOUR FILES ARE 100% SAFE.", color: "line-green", speed: 40, pause: 850 }},
-  {{ text: "WE'LL PRETEND THIS NEVER HAPPENED.", color: "line-white", speed: 46, pause: 1200 }},
+  {{ text: "...", color: "line-yellow", speed: 180, pause: 1300 }},
+  {{ text: "WAIT.", color: "line-white", speed: 65, pause: 1100 }},
+  {{ text: "HOLD ON.", color: "line-white", speed: 65, pause: 1000 }},
+  {{ text: "NICE TRY, NPC. 💀", color: "line-red", speed: 52, pause: 1600, twitch: true }},
+  {{ text: "", pause: 300 }},
+  {{ text: "THIS PRANK REQUIRES A REAL PC.", color: "line-white", speed: 45, pause: 1000 }},
+  {{ text: "YOUR PHONE CANNOT HANDLE THIS.", color: "line-yellow", speed: 44, pause: 1200 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "MOBILE STATUS:", color: "line-white", speed: 40, pause: 600 }},
+  {{ text: "❌ NO PHYSICAL KEYBOARD", color: "line-red", speed: 38, pause: 550 }},
+  {{ text: "❌ NO DESKTOP ENVIRONMENT", color: "line-red", speed: 38, pause: 550 }},
+  {{ text: "❌ NO COMMON SENSE FOUND", color: "line-red", speed: 38, pause: 700 }},
+  {{ text: "💀 PANIC LEVEL: 99%", color: "line-yellow", speed: 42, pause: 1100, twitch: true }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "YOU INSTALLED 47 CLEANER APPS...", color: "line-yellow", speed: 46, pause: 1100 }},
+  {{ text: "AND STILL CLICKED A RANDOM LINK. 😭", color: "line-red", speed: 50, pause: 1700, twitch: true }},
+  {{ text: "", pause: 400 }},
+  {{ text: "YOUR FILES ARE 100% SAFE.", color: "line-green", speed: 40, pause: 800 }},
+  {{ text: "WE'LL PRETEND THIS NEVER HAPPENED.", color: "line-white", speed: 44, pause: 1100 }},
+  {{ text: "", pause: 300 }},
   {{ text: "COME BACK WITH A KEYBOARD.", color: "line-white", speed: 46, pause: 1200 }},
-  {{ text: "TERMINATING MOBILE SESSION...", color: "line-dim", speed: 40, pause: 1200 }},
-  {{ text: "BYE. 👋", color: "line-white", speed: 65, pause: 4000 }}
+  {{ text: "TERMINATING SESSION...", color: "line-dim", speed: 38, pause: 1100 }},
+  {{ text: "BYE. 👋", color: "line-white", speed: 60, pause: 4000 }}
 ];
 
 const IPAD_SCRIPT = [
-  {{ text: "[00:44:01] INITIALIZING REMOTE EXPLOIT PIPELINE...", color: "line-green", speed: 40, pause: 650 }},
-  {{ text: "[00:44:02] BYPASSING IPADOS SANDBOX................... [OK]", color: "line-green", speed: 40, pause: 700 }},
-  {{ text: "[00:44:03] INJECTING TABLET CORRUPTION HOOKS......... [OK]", color: "line-green", speed: 40, pause: 750 }},
-  {{ text: "============================================================", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "[+] TARGET HARDWARE: APPLE IPAD", color: "line-red", speed: 45, pause: 1100, twitch: true }},
-  {{ text: "[+] SCREEN RATIO:    OVERSIZED", color: "line-yellow", speed: 40, pause: 750 }},
-  {{ text: "[+] SENSORS:         APPLE PENCIL READY (USELESS HERE)", color: "line-yellow", speed: 40, pause: 900 }},
-  {{ text: "============================================================", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "WAIT.", color: "line-white", speed: 65, pause: 1200 }},
-  {{ text: "BIGGER SCREEN.", color: "line-yellow", speed: 52, pause: 1100 }},
-  {{ text: "STILL NOT A COMPUTER. 💀", color: "line-red", speed: 58, pause: 1800, twitch: true }},
-  {{ text: "", pause: 350 }},
-  {{ text: "YOU MADE IT BIGGER...", color: "line-white", speed: 48, pause: 1100 }},
-  {{ text: "BUT YOU STILL DIDN'T BRING A REAL KEYBOARD.", color: "line-yellow", speed: 50, pause: 1500 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "------------------------------------------------------------", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "TABLET STATUS:", color: "line-white", speed: 40, pause: 650 }},
-  {{ text: "❌ TOO BIG FOR MOBILE", color: "line-red", speed: 38, pause: 600 }},
-  {{ text: "❌ TOO SMALL FOR THE SHOW", color: "line-red", speed: 38, pause: 600 }},
-  {{ text: "❌ COMMON SENSE NOT FOUND", color: "line-red", speed: 42, pause: 900 }},
-  {{ text: "------------------------------------------------------------", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "NICE TRY.", color: "line-white", speed: 46, pause: 1100 }},
-  {{ text: "COME BACK WITH A REAL COMPUTER. 😭", color: "line-red", speed: 52, pause: 1800, twitch: true }},
-  {{ text: "TERMINATING MOBILE SESSION...", color: "line-dim", speed: 40, pause: 1100 }},
-  {{ text: "BYE. 👋", color: "line-white", speed: 65, pause: 3000 }}
+  {{ text: "root@ipad:~# ./stage_exploit", color: "line-cyan", speed: 42, pause: 600 }},
+  {{ text: "[+] BYPASSING IPADOS SANDBOX... [OK]", color: "line-green", speed: 38, pause: 650 }},
+  {{ text: "[+] INJECTING HOOKS............ [OK]", color: "line-green", speed: 38, pause: 700 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "[!] TARGET:  APPLE IPAD", color: "line-red", speed: 42, pause: 900, twitch: true }},
+  {{ text: "[!] DISPLAY: OVERSIZED", color: "line-yellow", speed: 38, pause: 700 }},
+  {{ text: "[!] PENCIL:  READY (USELESS HERE)", color: "line-yellow", speed: 38, pause: 850 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "WAIT.", color: "line-white", speed: 65, pause: 1100 }},
+  {{ text: "BIGGER SCREEN.", color: "line-yellow", speed: 50, pause: 1000 }},
+  {{ text: "STILL NOT A COMPUTER. 💀", color: "line-red", speed: 54, pause: 1600, twitch: true }},
+  {{ text: "", pause: 300 }},
+  {{ text: "YOU MADE IT BIGGER...", color: "line-white", speed: 45, pause: 1000 }},
+  {{ text: "BUT STILL DIDN'T BRING A KEYBOARD.", color: "line-yellow", speed: 46, pause: 1400 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "TABLET STATUS:", color: "line-white", speed: 40, pause: 600 }},
+  {{ text: "❌ TOO BIG FOR MOBILE", color: "line-red", speed: 38, pause: 550 }},
+  {{ text: "❌ TOO SMALL FOR THE SHOW", color: "line-red", speed: 38, pause: 550 }},
+  {{ text: "❌ COMMON SENSE NOT FOUND", color: "line-red", speed: 38, pause: 700 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "NICE TRY.", color: "line-white", speed: 45, pause: 1000 }},
+  {{ text: "COME BACK WITH A REAL COMPUTER. 😭", color: "line-red", speed: 50, pause: 1700, twitch: true }},
+  {{ text: "TERMINATING SESSION...", color: "line-dim", speed: 38, pause: 1000 }},
+  {{ text: "BYE. 👋", color: "line-white", speed: 60, pause: 3000 }}
 ];
 
 const ANDROID_TABLET_SCRIPT = [
-  {{ text: "[00:44:01] INITIALIZING REMOTE EXPLOIT PIPELINE...", color: "line-green", speed: 40, pause: 650 }},
-  {{ text: "[00:44:02] SCANNING TABLET ARCHITECTURE............... [OK]", color: "line-green", speed: 40, pause: 700 }},
-  {{ text: "============================================================", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "[+] TARGET HARDWARE: ANDROID TABLET", color: "line-red", speed: 45, pause: 1100, twitch: true }},
-  {{ text: "============================================================", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "ABSOLUTELY NOT.", color: "line-red", speed: 60, pause: 1300, twitch: true }},
-  {{ text: "YOU MADE IT BIGGER...", color: "line-yellow", speed: 48, pause: 1100 }},
-  {{ text: "BUT YOU STILL DIDN'T MAKE IT A COMPUTER. 💀", color: "line-white", speed: 52, pause: 1800, twitch: true }},
-  {{ text: "", pause: 350 }},
-  {{ text: "------------------------------------------------------------", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "TABLET STATUS:", color: "line-white", speed: 40, pause: 650 }},
-  {{ text: "❌ INSUFFICIENT CHAOS", color: "line-red", speed: 38, pause: 600 }},
-  {{ text: "❌ INSUFFICIENT KEYBOARD", color: "line-red", speed: 38, pause: 600 }},
-  {{ text: "❌ INSUFFICIENT COMMON SENSE", color: "line-red", speed: 42, pause: 900 }},
-  {{ text: "------------------------------------------------------------", color: "line-dim", speed: 12, pause: 400 }},
-  {{ text: "", pause: 350 }},
-  {{ text: "NICE TRY.", color: "line-white", speed: 46, pause: 1100 }},
-  {{ text: "COME BACK WITH A COMPUTER.", color: "line-yellow", speed: 50, pause: 1500 }},
-  {{ text: "TERMINATING MOBILE SESSION...", color: "line-dim", speed: 40, pause: 1200 }},
-  {{ text: "BYE. 👋", color: "line-white", speed: 65, pause: 3000 }}
+  {{ text: "root@tablet:~# ./stage_exploit", color: "line-cyan", speed: 42, pause: 600 }},
+  {{ text: "[+] SCANNING ARCHITECTURE...... [OK]", color: "line-green", speed: 38, pause: 650 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "[!] TARGET: ANDROID TABLET", color: "line-red", speed: 42, pause: 900, twitch: true }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "ABSOLUTELY NOT.", color: "line-red", speed: 55, pause: 1200, twitch: true }},
+  {{ text: "YOU MADE IT BIGGER...", color: "line-yellow", speed: 45, pause: 1000 }},
+  {{ text: "BUT STILL DIDN'T MAKE IT A PC. 💀", color: "line-white", speed: 50, pause: 1600, twitch: true }},
+  {{ text: "", pause: 300 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "TABLET STATUS:", color: "line-white", speed: 40, pause: 600 }},
+  {{ text: "❌ INSUFFICIENT CHAOS", color: "line-red", speed: 38, pause: 550 }},
+  {{ text: "❌ INSUFFICIENT KEYBOARD", color: "line-red", speed: 38, pause: 550 }},
+  {{ text: "❌ INSUFFICIENT COMMON SENSE", color: "line-red", speed: 38, pause: 700 }},
+  {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
+  {{ text: "", pause: 300 }},
+  {{ text: "NICE TRY.", color: "line-white", speed: 45, pause: 1000 }},
+  {{ text: "COME BACK WITH A COMPUTER.", color: "line-yellow", speed: 46, pause: 1400 }},
+  {{ text: "TERMINATING SESSION...", color: "line-dim", speed: 38, pause: 1000 }},
+  {{ text: "BYE. 👋", color: "line-white", speed: 60, pause: 3000 }}
 ];
 
 /* ==========================================================================
@@ -672,7 +700,7 @@ function runMobileTerminal(script, deviceType) {{
   term.style.display = "block";
 
   if (headerTitle) {{
-    headerTitle.textContent = `root@${{deviceType}}:# /bin/exploit_session`;
+    headerTitle.textContent = `root@${{deviceType}}:~ (exploit)`;
   }}
 
   const audio = new MobileKeyAudio();
