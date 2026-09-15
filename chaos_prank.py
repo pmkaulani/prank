@@ -89,6 +89,10 @@ class SoundFX:
     def success(self):
         threading.Thread(target=_beep, args=(880, 220), daemon=True).start()
 
+    def dodge(self):
+        f = random.choice([1400, 1600, 1850])
+        threading.Thread(target=_beep, args=(f, 50), daemon=True).start()
+
 # ═══════════════════════════════════════════════════ REAL TERMINAL SHOW ═════
 
 ABORTED = False
@@ -373,19 +377,23 @@ def make_error_dialog(title, text, bar_color, icon_char):
 # ═════════════════════════════════════════════════ FULLSCREEN VIRUS SHOW ═══
 
 class VirusItem:
-    def __init__(self, pil_img, cx, cy):
+    def __init__(self, pil_img, cx, cy, is_error=False):
         self.orig_img = pil_img
         self.cx = cx
         self.cy = cy
+        self.is_error = is_error
         self.scale = 0.01
         self.phase = "grow"
         self.phase_t = 0.0
         self.dead = False
         self.cached_photo = None
         self.last_scale = -1
+        self.dodge_cooldown = 0.0
 
     def update(self, dt):
         self.phase_t += dt
+        if self.dodge_cooldown > 0:
+            self.dodge_cooldown -= dt
         if self.phase == "grow":
             t = min(self.phase_t / 0.22, 1.0)
             self.scale = 0.01 + (1.08 - 0.01) * math.sin(t * math.pi / 2)
@@ -402,6 +410,26 @@ class VirusItem:
             self.scale = 1.0 * (1.0 - t)
             if t >= 1.0:
                 self.dead = True
+
+    def check_dodge(self, mx, my, W, H, sfx):
+        if not self.is_error or self.scale < 0.75 or self.phase == "leave":
+            return False
+        if self.dodge_cooldown > 0:
+            return False
+        w, h = self.orig_img.size
+        # OK and Cancel buttons are near the bottom of the error dialog
+        btn_y = self.cy + (h // 2) - 22
+        dx = mx - self.cx
+        dy = my - btn_y
+        dist = math.hypot(dx, dy)
+        if dist < 65:  # Mouse cursor approaching OK/Cancel button!
+            # Teleport to an unexpected new location on screen!
+            self.cx = random.randint(int(0.18 * W), int(0.82 * W))
+            self.cy = random.randint(int(0.18 * H), int(0.82 * H))
+            self.dodge_cooldown = 0.4
+            sfx.dodge()
+            return True
+        return False
 
     def force_leave(self):
         self.phase = "leave"
@@ -422,6 +450,45 @@ class VirusItem:
             return self.cached_photo
         except Exception:
             return None
+
+def draw_bsod(canvas, W, H):
+    canvas.create_rectangle(0, 0, W, H, fill="#0000AA", outline="#0000AA")
+    bsod_lines = [
+        "A problem has been detected and Windows has been shut down to prevent damage",
+        "to your computer.",
+        "",
+        "MEME_OVERFLOW_EXCEPTION",
+        "",
+        "If this is the first time you've seen this Stop error screen,",
+        "restart your computer. If this screen appears again, follow",
+        "these steps:",
+        "",
+        "Check to make sure any new meme hardware or software is properly configured.",
+        "Did you really run an unknown diagnostic script from a terminal?",
+        "",
+        "If problems continue, disable or remove any newly downloaded meme packages.",
+        "Disable BIOS memory options such as caching or shadowing.",
+        "",
+        "Technical information:",
+        "",
+        "*** STOP: 0x00000042 (0xDEADBEEF, 0x00000420, 0x1337BABE, 0xFEEDC0DE)",
+        "",
+        "*** Address 0x80400000 base at 0x80400000, DateStamp 42424242 - vibes.sys",
+        "",
+        "Beginning dump of physical memory...",
+        "Dumping physical memory to disk: 100%",
+        "Physical memory dump complete.",
+        "Contact your system administrator or technical support group for further assistance."
+    ]
+    font_family = "Courier New" if os.name == 'nt' else "monospace"
+    y = max(30, (H - len(bsod_lines) * 22) // 2)
+    for line in bsod_lines:
+        if line == "MEME_OVERFLOW_EXCEPTION":
+            canvas.create_text(80, y, text=line, fill="#FFFFFF", font=(font_family, 18, "bold"), anchor=tk.W)
+            y += 32
+        else:
+            canvas.create_text(80, y, text=line, fill="#FFFFFF", font=(font_family, 13), anchor=tk.W)
+            y += 22
 
 def run_fullscreen_virus_show():
     # Load all meme images with PIL
@@ -445,7 +512,6 @@ def run_fullscreen_virus_show():
             t = random.choice(TITLES)
             virus_meme_cards.append(make_meme_virus_card(im, t, c))
     else:
-        # Fallback placeholder card
         blank = Image.new("RGBA", (300, 200), "#112233")
         virus_meme_cards.append(make_meme_virus_card(blank, "PAYLOAD.EXE", "#00e5ff"))
 
@@ -460,18 +526,37 @@ def run_fullscreen_virus_show():
     root.title("System Diagnostic")
     root.attributes("-fullscreen", True)
     root.attributes("-topmost", True)
-    root.config(cursor="none")
+    root.config(cursor="arrow")
+
+    # Transparent canvas color key to show the real desktop underneath
+    TRANS_COLOR = "#000001"
+    if os.name == 'nt':
+        try:
+            root.wm_attributes("-transparentcolor", TRANS_COLOR)
+        except Exception:
+            pass
 
     W = root.winfo_screenwidth()
     H = root.winfo_screenheight()
 
-    canvas = tk.Canvas(root, bg="#040608", highlightthickness=0, width=W, height=H)
+    canvas = tk.Canvas(root, bg=TRANS_COLOR, highlightthickness=0, width=W, height=H)
     canvas.pack(fill=tk.BOTH, expand=True)
 
-    # 2411 Emergency Exit Code (Hidden from display)
+    # Mouse tracking for dodging buttons
+    mouse_x, mouse_y = -999, -999
+    def on_mouse(event):
+        nonlocal mouse_x, mouse_y
+        mouse_x, mouse_y = event.x, event.y
+
+    root.bind("<Motion>", on_mouse)
+
+    # 2411 Emergency Exit Code & BSOD Panic Key Tracker
     code_buf = ""
+    panic_count = 0
+    state = "TILING_GAPS"
+
     def on_key(event):
-        nonlocal code_buf
+        nonlocal code_buf, panic_count
         global ABORTED
         if event.char and event.char.isdigit():
             code_buf = (code_buf + event.char)[-4:]
@@ -483,8 +568,16 @@ def run_fullscreen_virus_show():
             ABORTED = True
             root.destroy()
             return
+        if state == "BSOD":
+            panic_count += 1
+
+    def on_click(event):
+        nonlocal panic_count
+        if state == "BSOD":
+            panic_count += 1
 
     root.bind("<Key>", on_key)
+    root.bind("<Button-1>", on_click)
 
     # ── Gap-Filling Grid Initialization ──
     COLS, ROWS = 5, 4
@@ -503,16 +596,16 @@ def run_fullscreen_virus_show():
     filled_slots = 0
 
     items = []
-    state = "TILING_GAPS"
     start_time = time.time()
     last_time = time.time()
     last_spawn = 0.0
     spawn_interval = 1.35
-    overload_time = 0.0
     cascade_start = 0.0
+    bsod_start = 0.0
+    shake_until = 0.0
 
     def game_loop():
-        nonlocal state, last_time, last_spawn, spawn_interval, filled_slots, overload_time, cascade_start
+        nonlocal state, last_time, last_spawn, spawn_interval, filled_slots, cascade_start, bsod_start, shake_until
         global ABORTED
         if ABORTED:
             root.destroy()
@@ -520,103 +613,88 @@ def run_fullscreen_virus_show():
         now = time.time()
         dt = min(now - last_time, 0.05)
         last_time = now
-        elapsed = now - start_time
 
         canvas.delete("all")
 
-        # ── State Machine: Tiling gaps one by one ──
+        # ── State Machine: Tiling gaps one by one over the real desktop ──
         if state == "TILING_GAPS":
             if now - last_spawn >= spawn_interval:
                 last_spawn = now
                 if grid_slots:
-                    # Fill an unfilled gap
                     cx, cy = grid_slots.pop()
                     jx = cx + random.uniform(-20, 20)
                     jy = cy + random.uniform(-18, 18)
 
-                    # Alternate between meme cards and error message popups
                     if random.random() < 0.65 and virus_meme_cards:
                         card = random.choice(virus_meme_cards)
+                        items.append(VirusItem(card, jx, jy, is_error=False))
                         sfx.pop()
                     else:
                         card = random.choice(error_dialog_cards)
+                        items.append(VirusItem(card, jx, jy, is_error=True))
                         sfx.glitch()
 
-                    items.append(VirusItem(card, jx, jy))
                     filled_slots += 1
-                    # Smoothly accelerate from 1.35s down to 0.55s as screen fills
+                    shake_until = now + 0.08
                     spawn_interval = max(0.55, spawn_interval * 0.96)
                 else:
-                    # Every gap on the screen is filled! Move to cascade saturation
                     state = "CASCADE_SATURATION"
                     cascade_start = now
                     sfx.warn()
 
         elif state == "CASCADE_SATURATION":
-            # Cascading overlapping virus popups
-            if now - last_spawn >= 0.25:
+            if now - last_spawn >= 0.22:
                 last_spawn = now
                 cx = random.uniform(0.12 * W, 0.88 * W)
                 cy = random.uniform(0.12 * H, 0.88 * H)
                 if random.random() < 0.5:
-                    card = random.choice(virus_meme_cards)
+                    items.append(VirusItem(random.choice(virus_meme_cards), cx, cy, is_error=False))
                     sfx.pop()
                 else:
-                    card = random.choice(error_dialog_cards)
+                    items.append(VirusItem(random.choice(error_dialog_cards), cx, cy, is_error=True))
                     sfx.glitch()
-                items.append(VirusItem(card, cx, cy))
+                shake_until = now + 0.08
 
-            if now - cascade_start >= 12.0:
-                state = "OVERLOAD"
-                overload_time = now
+            if now - cascade_start >= 10.0:
+                # Process complete -> Cut directly to authentic BSOD!
+                state = "BSOD"
+                bsod_start = now
                 sfx.warn()
 
-        elif state == "OVERLOAD":
-            if now - overload_time >= 5.0:
-                state = "VANISH"
-                for it in items:
-                    it.force_leave()
+        elif state == "BSOD":
+            # Feature 2: Authentic Blue Screen of Death
+            draw_bsod(canvas, W, H)
+            freeze_elapsed = now - bsod_start
+            # Freeze for at least 7.0 seconds so victim starts to panic
+            if freeze_elapsed >= 7.0:
+                # If they panic and press keys / clicks, or after 13 seconds:
+                if panic_count >= 1 or freeze_elapsed >= 13.0:
+                    sfx.success()
+                    root.destroy()
+                    return
 
-        elif state == "VANISH":
-            alive = [it for it in items if not it.dead]
-            if len(alive) == 0 or (now - overload_time >= 10.0):
-                root.destroy()
-                return
+            root.after(30, game_loop)
+            return
 
-        # ── Update & Render Items ──
+        # ── Check for Dodging Buttons (Feature 3) ──
+        for it in items:
+            if it.check_dodge(mouse_x, mouse_y, W, H, sfx):
+                shake_until = now + 0.08
+
+        # ── Screen Shake calculation (Feature 6) ──
+        shake_x = random.randint(-4, 4) if now < shake_until else 0
+        shake_y = random.randint(-4, 4) if now < shake_until else 0
+
+        # ── Update & Render Items directly on real desktop ──
         for it in items:
             it.update(dt)
             if not it.dead:
                 ph = it.get_photo()
                 if ph:
-                    canvas.create_image(it.cx, it.cy, image=ph, anchor=tk.CENTER)
+                    canvas.create_image(it.cx + shake_x, it.cy + shake_y, image=ph, anchor=tk.CENTER)
                     canvas._last_photo = ph
 
         items[:] = [it for it in items if not it.dead]
-
-        # ── HUD: Infection & Gap Coverage ──
-        pct = min(100, int((filled_slots / total_primary_slots) * 100)) if state == "TILING_GAPS" else 100
-        cov_bar = "█" * (pct // 5) + "-" * (20 - (pct // 5))
-        hud_color = "#ff3232" if pct >= 100 else "#00e650"
-
-        canvas.create_text(30, 26,
-                           text=f"INFECTED DISPLAY COVERAGE: [{cov_bar}] {pct}% [POPUPS: {len(items):03d}]",
-                           fill=hud_color, font=("Consolas", 13, "bold"), anchor=tk.W)
-
-        # ── Overload Strobe Banner ──
-        if state == "OVERLOAD":
-            if int(now * 8) % 2 == 0:
-                canvas.create_rectangle(0, 0, W, H, fill="#2b0000", stipple="gray50")
-                canvas.create_text(W // 2, H // 2 - 40, text="SYSTEM OVERLOAD",
-                                   fill="#ff3232", font=("Consolas", 46, "bold"))
-                canvas.create_text(W // 2, H // 2 + 35, text="CRITICAL MEME INFECTION DETECTED.",
-                                   fill="#ffd228", font=("Consolas", 24, "bold"))
-
-        # ── Bottom Status Bar (Hidden abort code - completely authentic look) ──
-        canvas.create_rectangle(0, H - 28, W, H, fill="#101010", outline="#333333")
-        canvas.create_text(20, H - 14,
-                           text="[!] VIRUS PROTOCOL OVERRIDE  |  SECURITY: CRITICAL  |  DISPLAY: LOCKED",
-                           fill="#ff3232", font=("Consolas", 11), anchor=tk.W)
 
         root.after(25, game_loop)
 

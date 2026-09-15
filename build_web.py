@@ -276,6 +276,27 @@ def build():
   .cmd-hint b {{
     color: #00e650;
   }}
+  .preview-btn {{
+    width: 100%;
+    background: #0d1612;
+    border: 1px solid #1a3320;
+    color: #557760;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    margin-top: 12px;
+  }}
+  .preview-btn:hover {{
+    border-color: #00e650;
+    color: #00e650;
+    background: #0f1c14;
+    box-shadow: 0 0 10px rgba(0, 230, 80, 0.2);
+  }}
 </style>
 </head>
 <body>
@@ -312,6 +333,8 @@ def build():
       &gt; <b>Step 1:</b> Press <b>Win + R</b>, type <b>cmd</b>, and press <b>Enter</b>.<br>
       &gt; <b>Step 2:</b> Paste the command and press <b>Enter</b>.
     </div>
+
+    <button class="preview-btn" id="btn-preview">&gt; TEST IN-BROWSER SIMULATION &lt;</button>
   </div>
 </div>
 
@@ -642,6 +665,10 @@ class WebSFX {{
   }}
   warn() {{ this.playTone(150, 420, "sawtooth", 0.5); }}
   success() {{ this.playTone(880, 260, "sine", 0.4); }}
+  dodge() {{
+    const f = 1400 + Math.random() * 450;
+    this.playTone(f, 50, "sine", 0.35);
+  }}
 }}
 
 /* ==========================================================================
@@ -661,9 +688,25 @@ class WebChaosPrank {{
     this.W = window.innerWidth;
     this.H = window.innerHeight;
     this.totalDeployed = 0;
+    this.filledPrimary = 0;
+    this.totalPrimary = 20;
+    this.mouseX = -999;
+    this.mouseY = -999;
+    this.panicCount = 0;
+    this.shakeUntil = 0;
+    this.bsodStart = 0;
     this.resize();
     window.addEventListener("resize", () => this.resize());
     window.addEventListener("keydown", (e) => this.onKey(e));
+    window.addEventListener("mousemove", (e) => {{
+      this.mouseX = e.clientX;
+      this.mouseY = e.clientY;
+    }});
+    window.addEventListener("click", () => {{
+      if (this.state === "BSOD") {{
+        this.panicCount++;
+      }}
+    }});
   }}
 
   resize() {{
@@ -680,7 +723,11 @@ class WebChaosPrank {{
       this.codeBuf = (this.codeBuf + e.key).slice(-4);
       if (this.codeBuf === this.exitCode) {{
         this.triggerEmergencyExit();
+        return;
       }}
+    }}
+    if (this.state === "BSOD") {{
+      this.panicCount++;
     }}
   }}
 
@@ -801,6 +848,23 @@ class WebChaosPrank {{
       phase: "grow",
       phaseT: 0,
       dead: false,
+      dodgeCooldown: 0,
+      checkDodge: function(mx, my, W, H, sfx) {{
+        if (this.isMeme || this.scale < 0.75 || this.phase === "leave") return false;
+        if (this.dodgeCooldown > 0) return false;
+        const btnY = this.cy + (this.h / 2) - 20;
+        const dx = mx - this.cx;
+        const dy = my - btnY;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 65) {{
+          this.cx = 0.18 * W + Math.random() * 0.64 * W;
+          this.cy = 0.18 * H + Math.random() * 0.64 * H;
+          this.dodgeCooldown = 0.4;
+          sfx.dodge();
+          return true;
+        }}
+        return false;
+      }},
       forceLeave: function() {{
         this.phase = "leave";
         this.phaseT = 0;
@@ -809,11 +873,18 @@ class WebChaosPrank {{
 
     this.sprites.push(item);
     this.totalDeployed++;
+    this.shakeUntil = performance.now() + 80;
     if (isMeme) this.sfx.pop();
     else this.sfx.glitch();
   }}
 
   update(dt) {{
+    if (this.sprites) {{
+      this.sprites.forEach(s => {{
+        if (s.dodgeCooldown > 0) s.dodgeCooldown -= dt;
+      }});
+    }}
+
     // 1. BOOT SEQUENCE
     if (this.state === "BOOT") {{
       this.bootTimer += dt;
@@ -877,44 +948,47 @@ class WebChaosPrank {{
         }}
       }}
       this.updateSprites(dt);
+      this.sprites.forEach(s => {{
+        if (s.checkDodge && s.checkDodge(this.mouseX, this.mouseY, this.W, this.H, this.sfx)) {{
+          this.shakeUntil = performance.now() + 80;
+        }}
+      }});
     }}
 
     // 4. CASCADE SATURATION (Phase 5 - rapid spam of memes & error messages)
     else if (this.state === "CASCADE_SATURATION") {{
       this.spawnTimer += dt;
       this.cascadeTimer += dt;
-      if (this.spawnTimer >= 0.25) {{
+      if (this.spawnTimer >= 0.22) {{
         this.spawnTimer = 0;
         this.spawnVirusItem();
       }}
       this.updateSprites(dt);
-      if (this.cascadeTimer >= 12.0) {{
-        this.state = "OVERLOAD";
-        this.overloadTimer = 0;
+      this.sprites.forEach(s => {{
+        if (s.checkDodge && s.checkDodge(this.mouseX, this.mouseY, this.W, this.H, this.sfx)) {{
+          this.shakeUntil = performance.now() + 80;
+        }}
+      }});
+      if (this.cascadeTimer >= 10.0) {{
+        this.state = "BSOD";
+        this.bsodStart = performance.now();
+        this.panicCount = 0;
         this.sfx.warn();
       }}
     }}
 
-    // 5. OVERLOAD (Phase 6 - Strobe & Warning)
-    else if (this.state === "OVERLOAD") {{
-      this.overloadTimer += dt;
-      if (this.overloadTimer >= 5.0) {{
-        this.state = "VANISH";
-        this.vanishTimer = 0;
-        this.sprites.forEach(s => s.forceLeave());
+    // 5. BSOD (Phase 6 - Windows Blue Screen of Death with Panic Freeze)
+    else if (this.state === "BSOD") {{
+      const elapsed = (performance.now() - this.bsodStart) / 1000;
+      if (elapsed >= 7.0) {{
+        if (this.panicCount >= 1 || elapsed >= 13.0) {{
+          this.sfx.success();
+          this.triggerEmergencyExit();
+        }}
       }}
     }}
 
-    // 6. VANISH (Phase 7 - Wave departure)
-    else if (this.state === "VANISH") {{
-      this.vanishTimer += dt;
-      this.updateSprites(dt);
-      if (this.vanishTimer >= 5.5 || this.sprites.length === 0) {{
-        this.triggerEmergencyExit();
-      }}
-    }}
-
-    // 7. CLEANUP (Phase 8 - Terminal restore)
+    // 6. CLEANUP (Phase 7 - Terminal restore)
     else if (this.state === "CLEANUP") {{
       this.cleanupTimer += dt;
       if (!this.cleanupLines) {{
@@ -1083,12 +1157,138 @@ class WebChaosPrank {{
     this.ctx.restore();
   }}
 
-  render() {{
-    this.ctx.fillStyle = "#040608";
+  drawSimulatedDesktop() {{
+    const grad = this.ctx.createLinearGradient(0, 0, this.W, this.H);
+    grad.addColorStop(0, "#0b2038");
+    grad.addColorStop(1, "#004785");
+    this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, 0, this.W, this.H);
 
-    // Render Terminal States
+    // Subtle background logo glow
+    this.ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
+    const cx = this.W * 0.55, cy = this.H * 0.45;
+    this.ctx.fillRect(cx - 100, cy - 80, 95, 75);
+    this.ctx.fillRect(cx + 5, cy - 80, 115, 75);
+    this.ctx.fillRect(cx - 100, cy + 5, 95, 85);
+    this.ctx.fillRect(cx + 5, cy + 5, 115, 85);
+
+    // Desktop icons
+    const icons = [
+      {{ name: "This PC", icon: "💻" }},
+      {{ name: "Recycle Bin", icon: "🗑️" }},
+      {{ name: "Google Chrome", icon: "🌐" }},
+      {{ name: "Discord", icon: "💬" }},
+      {{ name: "Documents", icon: "📁" }}
+    ];
+    icons.forEach((ic, idx) => {{
+      const iy = 40 + idx * 80;
+      this.ctx.font = "28px sans-serif";
+      this.ctx.textAlign = "center";
+      this.ctx.fillText(ic.icon, 55, iy);
+      this.ctx.font = "11px 'Segoe UI', Tahoma, sans-serif";
+      this.ctx.fillStyle = "#ffffff";
+      this.ctx.fillText(ic.name, 55, iy + 20);
+    }});
+
+    // Windows Taskbar
+    const tbh = 40;
+    this.ctx.fillStyle = "#101216";
+    this.ctx.fillRect(0, this.H - tbh, this.W, tbh);
+    this.ctx.strokeStyle = "#252830";
+    this.ctx.lineWidth = 1;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, this.H - tbh);
+    this.ctx.lineTo(this.W, this.H - tbh);
+    this.ctx.stroke();
+
+    // Start Button
+    this.ctx.fillStyle = "#0078d7";
+    this.ctx.fillRect(10, this.H - 32, 10, 10);
+    this.ctx.fillRect(22, this.H - 32, 10, 10);
+    this.ctx.fillRect(10, this.H - 20, 10, 10);
+    this.ctx.fillRect(22, this.H - 20, 10, 10);
+
+    // Search Box
+    this.ctx.fillStyle = "#1f2228";
+    this.ctx.fillRect(45, this.H - 34, 180, 28);
+    this.ctx.fillStyle = "#888888";
+    this.ctx.font = "12px 'Segoe UI', Tahoma, sans-serif";
+    this.ctx.textAlign = "left";
+    this.ctx.fillText("Type here to search", 55, this.H - 16);
+
+    // Live Clock
+    const d = new Date();
+    const timeStr = d.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
+    const dateStr = d.toLocaleDateString([], {{ month: 'numeric', day: 'numeric', year: 'numeric' }});
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.font = "11px 'Segoe UI', Tahoma, sans-serif";
+    this.ctx.textAlign = "right";
+    this.ctx.fillText(timeStr, this.W - 16, this.H - 22);
+    this.ctx.fillText(dateStr, this.W - 16, this.H - 8);
+    this.ctx.textAlign = "left";
+  }}
+
+  drawBSOD() {{
+    this.ctx.fillStyle = "#0000AA";
+    this.ctx.fillRect(0, 0, this.W, this.H);
+
+    const bsodLines = [
+      "A problem has been detected and Windows has been shut down to prevent damage",
+      "to your computer.",
+      "",
+      "MEME_OVERFLOW_EXCEPTION",
+      "",
+      "If this is the first time you've seen this Stop error screen,",
+      "restart your computer. If this screen appears again, follow",
+      "these steps:",
+      "",
+      "Check to make sure any new meme hardware or software is properly configured.",
+      "Did you really run an unknown diagnostic script from a terminal?",
+      "",
+      "If problems continue, disable or remove any newly downloaded meme packages.",
+      "Disable BIOS memory options such as caching or shadowing.",
+      "",
+      "Technical information:",
+      "",
+      "*** STOP: 0x00000042 (0xDEADBEEF, 0x00000420, 0x1337BABE, 0xFEEDC0DE)",
+      "",
+      "*** Address 0x80400000 base at 0x80400000, DateStamp 42424242 - vibes.sys",
+      "",
+      "Beginning dump of physical memory...",
+      "Dumping physical memory to disk: 100%",
+      "Physical memory dump complete.",
+      "Contact your system administrator or technical support group for further assistance."
+    ];
+
+    this.ctx.fillStyle = "#FFFFFF";
+    this.ctx.textAlign = "left";
+    let y = Math.max(30, (this.H - bsodLines.length * 22) / 2);
+
+    for (let i = 0; i < bsodLines.length; i++) {{
+      const line = bsodLines[i];
+      if (line === "MEME_OVERFLOW_EXCEPTION") {{
+        this.ctx.font = "bold 20px 'Courier New', monospace";
+        this.ctx.fillText(line, 80, y);
+        y += 32;
+      }} else {{
+        this.ctx.font = "14px 'Courier New', monospace";
+        this.ctx.fillText(line, 80, y);
+        y += 22;
+      }}
+    }}
+  }}
+
+  render() {{
+    // 1. BSOD State
+    if (this.state === "BSOD") {{
+      this.drawBSOD();
+      return;
+    }}
+
+    // 2. Terminal Boot & Download States
     if (this.state === "BOOT" || this.state === "DOWNLOADING") {{
+      this.ctx.fillStyle = "#040608";
+      this.ctx.fillRect(0, 0, this.W, this.H);
       this.ctx.fillStyle = "#00e650";
       this.ctx.font = "16px Consolas, monospace";
       let y = 50;
@@ -1109,12 +1309,25 @@ class WebChaosPrank {{
         this.ctx.fillStyle = "#00e650";
         this.ctx.fillText(partial + "█", 50, y);
       }}
-      this.renderStatus();
+      this.renderStatus(true);
       return;
     }}
 
-    // Render Sprites in Virus & Chaos Phases
-    if (["TILING_GAPS", "CASCADE_SATURATION", "OVERLOAD", "VANISH"].includes(this.state)) {{
+    // 3. Realistic Desktop Meme & Popup Chaos Phases
+    if (this.state === "TILING_GAPS" || this.state === "CASCADE_SATURATION") {{
+      // Realistic desktop wallpaper & taskbar
+      this.drawSimulatedDesktop();
+
+      // Screen shake impact
+      let shakeX = 0, shakeY = 0;
+      if (performance.now() < this.shakeUntil) {{
+        shakeX = (Math.random() - 0.5) * 8;
+        shakeY = (Math.random() - 0.5) * 8;
+      }}
+
+      this.ctx.save();
+      this.ctx.translate(shakeX, shakeY);
+
       this.sprites.forEach(s => {{
         if (s.isMeme) {{
           this.drawRetroVirusCard(s);
@@ -1123,38 +1336,15 @@ class WebChaosPrank {{
         }}
       }});
 
-      // Infection Coverage HUD
-      const pct = this.state === "TILING_GAPS"
-        ? Math.min(100, Math.floor((this.filledPrimary / (this.totalPrimary || 1)) * 100))
-        : 100;
-      const barLen = Math.floor(pct / 5);
-      const barStr = "█".repeat(barLen) + "-".repeat(20 - barLen);
-
-      this.ctx.fillStyle = pct >= 100 ? "#ff3232" : "#00e650";
-      this.ctx.font = "bold 14px Consolas, monospace";
-      this.ctx.fillText(`INFECTED DISPLAY COVERAGE: [${{barStr}}] ${{pct}}% [POPUPS: ${{String(this.sprites.length).padStart(3, '0')}}]`, 30, 36);
-
-      // Overload Strobe & Banner
-      if (this.state === "OVERLOAD") {{
-        if (Math.floor(Date.now() / 150) % 2 === 0) {{
-          this.ctx.fillStyle = "rgba(255, 0, 0, 0.28)";
-          this.ctx.fillRect(0, 0, this.W, this.H);
-          this.ctx.fillStyle = "#ff3232";
-          this.ctx.font = "bold clamp(36px, 6vw, 68px) Consolas, monospace";
-          this.ctx.textAlign = "center";
-          this.ctx.fillText("SYSTEM OVERLOAD", this.W / 2, this.H / 2 - 30);
-          this.ctx.fillStyle = "#ffd228";
-          this.ctx.font = "bold clamp(20px, 3vw, 36px) Consolas, monospace";
-          this.ctx.fillText("CRITICAL MEME INFECTION DETECTED.", this.W / 2, this.H / 2 + 35);
-          this.ctx.textAlign = "left";
-        }}
-      }}
-      this.renderStatus();
+      this.ctx.restore();
+      // Realistic desktop: No coverage HUD and no bottom status bar during memes!
       return;
     }}
 
-    // Render Cleanup / Finale
+    // 4. Cleanup & Roast Finale
     if (this.state === "CLEANUP") {{
+      this.ctx.fillStyle = "#040608";
+      this.ctx.fillRect(0, 0, this.W, this.H);
       this.ctx.fillStyle = "#ffffff";
       this.ctx.font = "18px Consolas, monospace";
       let y = 60;
@@ -1294,6 +1484,16 @@ window.addEventListener("DOMContentLoaded", () => {{
         }}, 2500);
       }}
     }});
+
+    const previewBtn = document.getElementById("btn-preview");
+    if (previewBtn) {{
+      previewBtn.addEventListener("click", () => {{
+        sfx.init();
+        sfx.blip();
+        launcher.style.display = "none";
+        prank.start();
+      }});
+    }}
   }}
 }});
 </script>
