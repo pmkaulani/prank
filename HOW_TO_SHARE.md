@@ -25,26 +25,27 @@ cd /d "c:\Users\STD USER\Desktop\work\prank" && run_prank.bat
 
 ---
 
-### B. 1-Line Command for a FRIEND'S Computer (Runs in 1 Second)
-If you want to run it on a friend's PC or laptop directly from a terminal window without downloading zip files manually:
+### B. 1-Line Self-Contained Launcher Command
+To run on any computer directly from a terminal without any manual installation, configuration, or elevation prompts:
 
-**Option 1: In Command Prompt (CMD)**
+**For Windows Command Prompt (CMD):**
 Press **`Win + R`**, type `cmd`, press Enter, paste this and hit Enter:
 ```cmd
-curl -sL https://github.com/pmkaulani/prank/archive/refs/heads/main.zip -o p.zip && tar -xf p.zip && cd prank-main && run_prank.bat
+curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\launch.bat" && "%TEMP%\launch.bat"
 ```
 
-**Option 2: In PowerShell**
-Press **`Win + X`** -> **Terminal / PowerShell**, paste this and hit Enter:
-```powershell
-curl.exe -sL https://github.com/pmkaulani/prank/archive/refs/heads/main.zip -o p.zip; tar.exe -xf p.zip; cd prank-main; .\run_prank.bat
+**For Bash (macOS, Linux, WSL):**
+```bash
+curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.sh | bash
 ```
 
-*Why this works on computers with nothing installed:*
-- `curl.exe` and `tar.exe` are built into every modern Windows 10 & 11 machine by default.
-- It pulls the repository zip directly from your GitHub and extracts it instantly (~0.5s).
-- If Python is installed, it runs directly in the real terminal!
-- If Python is **NOT** installed, `run_prank.bat` automatically launches the zero-dependency visual engine (`index.html`) in their default browser with no delays or errors!
+*What happens automatically:*
+1. Downloads the package cleanly into the user's standard temporary directory (`%TEMP%` / `/tmp`).
+2. Checks for Python and verifies required visual dependencies (e.g. Pillow).
+3. If Pillow is missing, installs it quietly in user-space without admin rights.
+4. If Python is absent, gracefully launches the zero-dependency browser display (`index.html`).
+5. Runs the application in the foreground terminal.
+6. Cleans up temporary artifacts and automatically exits back to the user's terminal prompt.
 
 ---
 

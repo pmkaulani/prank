@@ -13,4 +13,3 @@ if %ERRORLEVEL% equ 0 (
     timeout /t 1 >nul
     start index.html
 )
-pause
