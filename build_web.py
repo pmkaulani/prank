@@ -930,7 +930,7 @@ class WebChaosPrank {{
     // 1. BOOT SEQUENCE
     if (this.state === "BOOT") {{
       this.bootTimer += dt;
-      if (this.bootTimer >= 0.045) {{
+      if (this.bootTimer >= 0.075) {{
         this.bootTimer = 0;
         if (this.bootIdx < this.bootLines.length) {{
           const line = this.bootLines[this.bootIdx];

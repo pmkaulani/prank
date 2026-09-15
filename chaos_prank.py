@@ -208,7 +208,7 @@ def sleep_interruptible(duration):
             return
         time.sleep(min(0.02, max(0.001, end_t - time.time())))
 
-def real_term_type(line, color="\033[92m", speed=0.036, pause=0.3):
+def real_term_type(line, color="\033[92m", speed=0.052, pause=0.5):
     if ABORTED:
         return
     sys.stdout.write(color)
@@ -278,7 +278,7 @@ def get_system_dox_info():
 def run_file_exfil_stream(sfx):
     if ABORTED:
         return
-    real_term_type("Targeting user directories for exfiltration...", "\033[93m", speed=0.025, pause=0.3)
+    real_term_type("Targeting user directories for exfiltration...", "\033[93m", speed=0.048, pause=0.6)
     user_home = os.path.expanduser("~")
     cand_dirs = [
         os.path.join(user_home, "Desktop"),
@@ -317,62 +317,62 @@ def run_file_exfil_stream(sfx):
         disp = fpath if len(fpath) <= 46 else ("..." + fpath[-43:])
         sys.stdout.write(f"\033[91m[EXFILTRATE]\033[0m {disp:<47} ")
         sys.stdout.flush()
-        sleep_interruptible(0.04)
+        sleep_interruptible(0.08)
         status = random.choice(["[ENCRYPTED]", "[LOCKED (AES-9000)]", "[HELD HOSTAGE]", "[UPLOADING -> DARKNET]"])
         sys.stdout.write(f"\033[93m{status}\033[0m\n")
         sys.stdout.flush()
         sfx.blip()
-        sleep_interruptible(0.06)
+        sleep_interruptible(0.12)
 
     print()
-    real_term_type("=" * 60, "\033[91m", speed=0.002)
-    real_term_type("ALL YOUR FILES HAVE BEEN ENCRYPTED (AES-9000).", "\033[91m", speed=0.025, pause=0.35)
-    real_term_type("SEND 500 DOGECOIN TO WALLET: 0xDEAD...BEEF", "\033[91m", speed=0.025, pause=0.35)
-    real_term_type("...", "\033[93m", speed=0.08, pause=0.6)
-    real_term_type("JUST KIDDING. WE DON'T TOUCH YOUR FILES. 😭 BUT YOU LOOKED WORRIED.", "\033[92m", speed=0.025, pause=0.6)
-    real_term_type("=" * 60, "\033[91m", speed=0.002)
+    real_term_type("=" * 60, "\033[91m", speed=0.003)
+    real_term_type("ALL YOUR FILES HAVE BEEN ENCRYPTED (AES-9000).", "\033[91m", speed=0.052, pause=0.7)
+    real_term_type("SEND 500 DOGECOIN TO WALLET: 0xDEAD...BEEF", "\033[91m", speed=0.052, pause=0.7)
+    real_term_type("...", "\033[93m", speed=0.12, pause=1.0)
+    real_term_type("JUST KIDDING. WE DON'T TOUCH YOUR FILES. 😭 BUT YOU LOOKED WORRIED.", "\033[92m", speed=0.048, pause=1.0)
+    real_term_type("=" * 60, "\033[91m", speed=0.003)
     print()
 
 def run_real_terminal_boot(sfx):
     if ABORTED:
         return
     os.system('cls' if os.name == 'nt' else 'clear')
-    real_term_type("CONNECTING........", "\033[92m", speed=0.055, pause=0.5)
-    real_term_type("CONNECTING...............", "\033[92m", speed=0.042, pause=0.45)
+    real_term_type("CONNECTING........", "\033[92m", speed=0.065, pause=0.8)
+    real_term_type("CONNECTING...............", "\033[92m", speed=0.055, pause=0.75)
     print()
-    real_term_type("ACCESSING DISPLAY......", "\033[92m", speed=0.046, pause=0.5)
+    real_term_type("ACCESSING DISPLAY......", "\033[92m", speed=0.058, pause=0.8)
     print()
-    real_term_type("[OK]  DISPLAY FOUND", "\033[92m", speed=0.025, pause=0.25)
-    real_term_type("[OK]  ADMINISTRATOR ACCESS GRANTED", "\033[92m", speed=0.025, pause=0.25)
-    real_term_type("[OK]  VICTIM LOCATED", "\033[92m", speed=0.025, pause=0.35)
+    real_term_type("[OK]  DISPLAY FOUND", "\033[92m", speed=0.048, pause=0.5)
+    real_term_type("[OK]  ADMINISTRATOR ACCESS GRANTED", "\033[92m", speed=0.048, pause=0.5)
+    real_term_type("[OK]  VICTIM LOCATED", "\033[92m", speed=0.048, pause=0.7)
     print()
 
     # ── Safe Comedic Hardware & User Doxxing ──
     dox = get_system_dox_info()
-    real_term_type("=" * 60, "\033[90m", speed=0.002)
-    real_term_type(f"[+] TARGET USER IDENTIFIED: \"{dox['user']}\"", "\033[92m", speed=0.025, pause=0.25)
-    real_term_type(f"[+] WORKSTATION: \"{dox['host']}\" ({dox['os']})", "\033[92m", speed=0.025, pause=0.25)
-    real_term_type(f"[+] CPU ARCHITECTURE: {dox['cpu']}", "\033[92m", speed=0.025, pause=0.25)
-    real_term_type(f"[+] INTERNAL NETWORK: {dox['ip']} | MAC: {dox['mac']}", "\033[92m", speed=0.025, pause=0.25)
-    real_term_type(f"[+] POWER / BATTERY: {dox['battery']}", "\033[92m", speed=0.025, pause=0.3)
-    real_term_type("=" * 60, "\033[90m", speed=0.002)
+    real_term_type("=" * 60, "\033[90m", speed=0.003)
+    real_term_type(f"[+] TARGET USER IDENTIFIED: \"{dox['user']}\"", "\033[92m", speed=0.048, pause=0.5)
+    real_term_type(f"[+] WORKSTATION: \"{dox['host']}\" ({dox['os']})", "\033[92m", speed=0.048, pause=0.5)
+    real_term_type(f"[+] CPU ARCHITECTURE: {dox['cpu']}", "\033[92m", speed=0.045, pause=0.5)
+    real_term_type(f"[+] INTERNAL NETWORK: {dox['ip']} | MAC: {dox['mac']}", "\033[92m", speed=0.048, pause=0.5)
+    real_term_type(f"[+] POWER / BATTERY: {dox['battery']}", "\033[92m", speed=0.048, pause=0.65)
+    real_term_type("=" * 60, "\033[90m", speed=0.003)
     print()
 
     # ── Feature: Fake Privilege Escalation ──
-    real_term_type("[PRIVILEGE] Current user status: GUEST / PEASANT", "\033[93m", speed=0.022, pause=0.2)
-    real_term_type("[PRIVILEGE] Escalating to: ADMINISTRATOR... OK", "\033[92m", speed=0.022, pause=0.2)
-    real_term_type("[PRIVILEGE] Escalating to: SYSTEM NT AUTHORITY... OK", "\033[92m", speed=0.022, pause=0.2)
-    real_term_type("[PRIVILEGE] Escalating to: SUPREME OVERLORD OF THIS LAPTOP... GRANTED", "\033[91m", speed=0.022, pause=0.35)
+    real_term_type("[PRIVILEGE] Current user status: GUEST / PEASANT", "\033[93m", speed=0.048, pause=0.5)
+    real_term_type("[PRIVILEGE] Escalating to: ADMINISTRATOR... OK", "\033[92m", speed=0.048, pause=0.5)
+    real_term_type("[PRIVILEGE] Escalating to: SYSTEM NT AUTHORITY... OK", "\033[92m", speed=0.048, pause=0.5)
+    real_term_type("[PRIVILEGE] Escalating to: SUPREME OVERLORD OF THIS LAPTOP... GRANTED", "\033[91m", speed=0.048, pause=0.8)
     print()
 
     # ── Feature: Fake Optical Sensor / Camera Warning ──
-    real_term_type("[CAMERA] Initializing front optical sensor...", "\033[93m", speed=0.022, pause=0.25)
-    real_term_type("[CAMERA] Human face detected in front of screen.", "\033[93m", speed=0.022, pause=0.25)
-    real_term_type("[CAMERA] Expression: VISIBLY SWEATING & CONFUSED 💀", "\033[91m", speed=0.022, pause=0.3)
-    real_term_type("[CAMERA] Status: NOT ACTUALLY ACCESSING CAMERA. CHILL.", "\033[92m", speed=0.022, pause=0.4)
+    real_term_type("[CAMERA] Initializing front optical sensor...", "\033[93m", speed=0.048, pause=0.6)
+    real_term_type("[CAMERA] Human face detected in front of screen.", "\033[93m", speed=0.048, pause=0.6)
+    real_term_type("[CAMERA] Expression: VISIBLY SWEATING & CONFUSED 💀", "\033[91m", speed=0.048, pause=0.7)
+    real_term_type("[CAMERA] Status: NOT ACTUALLY ACCESSING CAMERA. CHILL.", "\033[92m", speed=0.048, pause=0.8)
     print()
 
-    real_term_type("Scanning system files...", "\033[92m", speed=0.03)
+    real_term_type("Scanning system files...", "\033[92m", speed=0.048)
     if ABORTED:
         return
     sys.stdout.write("  \033[93m|")
@@ -381,49 +381,49 @@ def run_real_terminal_boot(sfx):
             return
         sys.stdout.write("█")
         sys.stdout.flush()
-        sleep_interruptible(0.04)
+        sleep_interruptible(0.065)
     sys.stdout.write("| 100%\033[0m\n\n")
     sys.stdout.flush()
-    sleep_interruptible(0.3)
+    sleep_interruptible(0.5)
 
     # ── Feature: File Exfiltration Stream & Fake Ransom Note ──
     run_file_exfil_stream(sfx)
 
     # ── Feature: Fake Antivirus Battle ──
-    real_term_type("[AV_BATTLE] Windows Defender: DETECTED", "\033[93m", speed=0.022, pause=0.2)
-    real_term_type("[AV_BATTLE] Deploying weaponized memes against antivirus...", "\033[93m", speed=0.022, pause=0.25)
-    real_term_type("[AV_BATTLE] Windows Defender: CONFUSED", "\033[91m", speed=0.022, pause=0.2)
-    real_term_type("[AV_BATTLE] System Firewall: EMOTIONALLY UNAVAILABLE", "\033[91m", speed=0.022, pause=0.2)
-    real_term_type("[AV_BATTLE] Third-party Antivirus: CRYING IN A CORNER", "\033[91m", speed=0.022, pause=0.2)
-    real_term_type("[AV_BATTLE] Security status: SURRENDERED", "\033[92m", speed=0.022, pause=0.35)
+    real_term_type("[AV_BATTLE] Windows Defender: DETECTED", "\033[93m", speed=0.048, pause=0.5)
+    real_term_type("[AV_BATTLE] Deploying weaponized memes against antivirus...", "\033[93m", speed=0.048, pause=0.6)
+    real_term_type("[AV_BATTLE] Windows Defender: CONFUSED", "\033[91m", speed=0.048, pause=0.5)
+    real_term_type("[AV_BATTLE] System Firewall: EMOTIONALLY UNAVAILABLE", "\033[91m", speed=0.048, pause=0.5)
+    real_term_type("[AV_BATTLE] Third-party Antivirus: CRYING IN A CORNER", "\033[91m", speed=0.048, pause=0.5)
+    real_term_type("[AV_BATTLE] Security status: SURRENDERED", "\033[92m", speed=0.048, pause=0.7)
     print()
 
     # ── Feature: Intern Malware Operator Gag ──
-    real_term_type("[OPERATOR] Remote terminal session established.", "\033[96m", speed=0.022, pause=0.25)
-    real_term_type("[OPERATOR] > cd system32", "\033[97m", speed=0.025, pause=0.25)
-    real_term_type("[OPERATOR] > rm -rf /* ... wait wrong operating system", "\033[97m", speed=0.025, pause=0.3)
-    real_term_type("[OPERATOR] > what button do I click guys", "\033[97m", speed=0.025, pause=0.3)
-    real_term_type("[OPERATOR] > sorry first day at the ransomware syndicate", "\033[97m", speed=0.025, pause=0.35)
-    real_term_type("[ERROR] Remote operator appears to be an intern.", "\033[93m", speed=0.022, pause=0.4)
+    real_term_type("[OPERATOR] Remote terminal session established.", "\033[96m", speed=0.048, pause=0.5)
+    real_term_type("[OPERATOR] > cd system32", "\033[97m", speed=0.052, pause=0.6)
+    real_term_type("[OPERATOR] > rm -rf /* ... wait wrong operating system", "\033[97m", speed=0.052, pause=0.7)
+    real_term_type("[OPERATOR] > what button do I click guys", "\033[97m", speed=0.052, pause=0.7)
+    real_term_type("[OPERATOR] > sorry first day at the ransomware syndicate", "\033[97m", speed=0.052, pause=0.75)
+    real_term_type("[ERROR] Remote operator appears to be an intern.", "\033[93m", speed=0.048, pause=0.8)
     print()
 
     # ── Feature: Fake Behavior Analysis ──
-    real_term_type("[BEHAVIOR] Monitoring user input and keyboard pressure...", "\033[93m", speed=0.022, pause=0.25)
-    real_term_type("[BEHAVIOR] Panic level: 37%", "\033[93m", speed=0.022, pause=0.2)
-    real_term_type("[BEHAVIOR] Panic level: 64%", "\033[93m", speed=0.022, pause=0.2)
-    real_term_type("[BEHAVIOR] Panic level: [███████████████] 97%", "\033[91m", speed=0.022, pause=0.25)
-    real_term_type("[BEHAVIOR] Psychological resistance detected.", "\033[93m", speed=0.022, pause=0.2)
-    real_term_type("[BEHAVIOR] Resistance level: EMBARRASSING", "\033[91m", speed=0.022, pause=0.35)
+    real_term_type("[BEHAVIOR] Monitoring user input and keyboard pressure...", "\033[93m", speed=0.048, pause=0.6)
+    real_term_type("[BEHAVIOR] Panic level: 37%", "\033[93m", speed=0.048, pause=0.5)
+    real_term_type("[BEHAVIOR] Panic level: 64%", "\033[93m", speed=0.048, pause=0.5)
+    real_term_type("[BEHAVIOR] Panic level: [███████████████] 97%", "\033[91m", speed=0.048, pause=0.6)
+    real_term_type("[BEHAVIOR] Psychological resistance detected.", "\033[93m", speed=0.048, pause=0.5)
+    real_term_type("[BEHAVIOR] Resistance level: EMBARRASSING", "\033[91m", speed=0.048, pause=0.8)
     print()
 
-    real_term_type("[OK]  MEME STAGING DATABASE ARMED", "\033[92m", speed=0.025, pause=0.5)
+    real_term_type("[OK]  MEME STAGING DATABASE ARMED", "\033[92m", speed=0.048, pause=0.9)
     print()
 
 def run_real_terminal_download(sfx):
     if ABORTED:
         return
-    real_term_type("Preparing entertainment module payload...", "\033[92m", speed=0.03, pause=0.35)
-    real_term_type("Fetching meme assets to local staging...", "\033[92m", speed=0.03, pause=0.25)
+    real_term_type("Preparing entertainment module payload...", "\033[92m", speed=0.048, pause=0.6)
+    real_term_type("Fetching meme assets to local staging...", "\033[92m", speed=0.048, pause=0.5)
     print()
 
     meme_files = []
@@ -437,7 +437,7 @@ def run_real_terminal_download(sfx):
         for w in words:
             if ABORTED:
                 return
-            real_term_type(f"[DOWNLOAD] Staging {w:<30} [████████████████████] 100% [OK]", "\033[96m", speed=0.02, pause=0.15)
+            real_term_type(f"[DOWNLOAD] Staging {w:<30} [████████████████████] 100% [OK]", "\033[96m", speed=0.048, pause=0.35)
             sfx.blip()
     else:
         for fname in meme_files[:18]:
@@ -455,7 +455,7 @@ def run_real_terminal_download(sfx):
                 pct = int((step / 20.0) * 100)
                 sys.stdout.write(f"\r\033[96m[DOWNLOAD]\033[0m {clean_name} \033[93m[{bar}]\033[0m {pct:3d}% ({size_kb} KB)")
                 sys.stdout.flush()
-                sleep_interruptible(0.015)
+                sleep_interruptible(0.035)
             sys.stdout.write(" \033[92m[OK]\033[0m\n")
             sys.stdout.flush()
             sfx.blip()
@@ -463,78 +463,78 @@ def run_real_terminal_download(sfx):
     print()
     if ABORTED:
         return
-    real_term_type(f"[OK] {len(meme_files[:18])} MEME ASSETS DOWNLOADED AND LOADED.", "\033[92m", speed=0.022, pause=0.5)
+    real_term_type(f"[OK] {len(meme_files[:18])} MEME ASSETS DOWNLOADED AND LOADED.", "\033[92m", speed=0.048, pause=0.7)
     print()
 
 def run_real_terminal_warning(sfx):
     if ABORTED:
         return
     sfx.win_error()
-    real_term_type("WARNING: UNAUTHORIZED MEME ACTIVITY DETECTED", "\033[91m", speed=0.035, pause=0.5)
-    real_term_type("=" * 52, "\033[91m", speed=0.004)
-    real_term_type("Attempting containment...   FAILED", "\033[91m", speed=0.025, pause=0.35)
-    real_term_type("Attempting containment...   FAILED", "\033[91m", speed=0.025, pause=0.35)
-    real_term_type("Attempting containment...   FAILED", "\033[91m", speed=0.025, pause=0.45)
+    real_term_type("WARNING: UNAUTHORIZED MEME ACTIVITY DETECTED", "\033[91m", speed=0.052, pause=0.7)
+    real_term_type("=" * 52, "\033[91m", speed=0.005)
+    real_term_type("Attempting containment...   FAILED", "\033[91m", speed=0.045, pause=0.65)
+    real_term_type("Attempting containment...   FAILED", "\033[91m", speed=0.045, pause=0.65)
+    real_term_type("Attempting containment...   FAILED", "\033[91m", speed=0.045, pause=0.8)
     print()
-    real_term_type("Running diagnostics...", "\033[93m", speed=0.025)
-    real_term_type("  CHK_00  0xA3F1  chaos_load=99%", "\033[93m", speed=0.02)
-    real_term_type("  CHK_01  0x7C2E  meme_density=CRITICAL", "\033[91m", speed=0.02)
-    real_term_type("  CHK_02  0x11FF  vibes=destroyed", "\033[93m", speed=0.02)
-    real_term_type("  CHK_03  0x8B4D  containment=IMPOSSIBLE", "\033[91m", speed=0.02)
-    real_term_type("  CHK_04  0x2A09  humor_level=MAXIMUM", "\033[92m", speed=0.02)
+    real_term_type("Running diagnostics...", "\033[93m", speed=0.045, pause=0.5)
+    real_term_type("  CHK_00  0xA3F1  chaos_load=99%", "\033[93m", speed=0.035, pause=0.3)
+    real_term_type("  CHK_01  0x7C2E  meme_density=CRITICAL", "\033[91m", speed=0.035, pause=0.3)
+    real_term_type("  CHK_02  0x11FF  vibes=destroyed", "\033[93m", speed=0.035, pause=0.3)
+    real_term_type("  CHK_03  0x8B4D  containment=IMPOSSIBLE", "\033[91m", speed=0.035, pause=0.3)
+    real_term_type("  CHK_04  0x2A09  humor_level=MAXIMUM", "\033[92m", speed=0.035, pause=0.5)
     print()
-    real_term_type("Diagnostics complete.  No survivors.", "\033[91m", speed=0.03, pause=0.5)
+    real_term_type("Diagnostics complete.  No survivors.", "\033[91m", speed=0.048, pause=0.85)
     print()
-    real_term_type("Do not panic.", "\033[93m", speed=0.035, pause=0.5)
-    real_term_type("Actually...", "\033[93m", speed=0.035, pause=0.5)
-    real_term_type("panic.", "\033[91m", speed=0.05, pause=0.8)
+    real_term_type("Do not panic.", "\033[93m", speed=0.05, pause=0.7)
+    real_term_type("Actually...", "\033[93m", speed=0.05, pause=0.7)
+    real_term_type("panic.", "\033[91m", speed=0.065, pause=1.0)
     print()
 
     # ── Feature: Fake Changing Countdown ──
-    real_term_type("Minimizing terminal & releasing meme payload in 10...", "\033[96m", speed=0.03, pause=0.35)
-    real_term_type("7...", "\033[96m", speed=0.03, pause=0.35)
-    real_term_type("3...", "\033[96m", speed=0.03, pause=0.35)
-    real_term_type("47... WE CHANGED OUR MIND.", "\033[93m", speed=0.03, pause=0.45)
-    real_term_type("Just kidding: 5.. 4.. 3.. 2.. 1.. LOL", "\033[91m", speed=0.03, pause=0.7)
+    real_term_type("Minimizing terminal & releasing meme payload in 10...", "\033[96m", speed=0.045, pause=0.75)
+    real_term_type("7...", "\033[96m", speed=0.05, pause=0.75)
+    real_term_type("3...", "\033[96m", speed=0.05, pause=0.85)
+    real_term_type("47... WE CHANGED OUR MIND.", "\033[93m", speed=0.048, pause=0.9)
+    real_term_type("Just kidding: 5.. 4.. 3.. 2.. 1.. LOL", "\033[91m", speed=0.048, pause=1.2)
 
 def run_real_terminal_cleanup(sfx):
     os.system('cls' if os.name == 'nt' else 'clear')
     sfx.success()
-    real_term_type("Reinitializing terminal...", "\033[92m", speed=0.025, pause=0.25)
-    real_term_type("Cleaning visual payload...          [OK]", "\033[92m", speed=0.02, pause=0.25)
-    real_term_type("Deleting evidence...                ERROR.", "\033[91m", speed=0.035, pause=0.6)
+    real_term_type("Reinitializing terminal...", "\033[92m", speed=0.045, pause=0.5)
+    real_term_type("Cleaning visual payload...          [OK]", "\033[92m", speed=0.042, pause=0.5)
+    real_term_type("Deleting evidence...                ERROR.", "\033[91m", speed=0.052, pause=0.85)
     print()
-    real_term_type("Just kidding.", "\033[93m", speed=0.035, pause=0.4)
+    real_term_type("Just kidding.", "\033[93m", speed=0.05, pause=0.65)
     print()
-    real_term_type("Cleaning temporary files...         [OK]", "\033[92m", speed=0.018)
-    real_term_type("Restoring display...                [OK]", "\033[92m", speed=0.018)
-    real_term_type("Restoring system state...           [OK]", "\033[92m", speed=0.018)
+    real_term_type("Cleaning temporary files...         [OK]", "\033[92m", speed=0.042, pause=0.4)
+    real_term_type("Restoring display...                [OK]", "\033[92m", speed=0.042, pause=0.4)
+    real_term_type("Restoring system state...           [OK]", "\033[92m", speed=0.042, pause=0.5)
     print()
 
     # ── Feature: Fake AI Malware Personality Dialogue ──
-    real_term_type("> BOOTING AI MODULE...", "\033[96m", speed=0.022, pause=0.25)
-    real_term_type("> PERSONALITY MODULE........OK", "\033[96m", speed=0.022, pause=0.25)
+    real_term_type("> BOOTING AI MODULE...", "\033[96m", speed=0.048, pause=0.5)
+    real_term_type("> PERSONALITY MODULE........OK", "\033[96m", speed=0.048, pause=0.6)
     print()
-    real_term_type("> HELLO.", "\033[97m", speed=0.04, pause=0.5)
-    real_term_type("> I HAVE BEEN WATCHING.", "\033[97m", speed=0.04, pause=0.6)
-    real_term_type("> ...", "\033[97m", speed=0.08, pause=0.6)
-    real_term_type("> NOT ACTUALLY.", "\033[93m", speed=0.04, pause=0.45)
-    real_term_type("> BUT THAT WOULD HAVE BEEN FUNNY.", "\033[92m", speed=0.03, pause=0.5)
+    real_term_type("> HELLO.", "\033[97m", speed=0.065, pause=0.85)
+    real_term_type("> I HAVE BEEN WATCHING.", "\033[97m", speed=0.06, pause=0.95)
+    real_term_type("> ...", "\033[97m", speed=0.10, pause=0.95)
+    real_term_type("> NOT ACTUALLY.", "\033[93m", speed=0.058, pause=0.75)
+    real_term_type("> BUT THAT WOULD HAVE BEEN FUNNY.", "\033[92m", speed=0.05, pause=0.85)
     print()
 
     # ── Feature: Final Dignity Audit Roast ──
     real_term_type("=" * 55, "\033[90m", speed=0.002)
-    real_term_type("               FINAL DIGNITY AUDIT               ", "\033[93m", speed=0.018, pause=0.25)
+    real_term_type("               FINAL DIGNITY AUDIT               ", "\033[93m", speed=0.035, pause=0.5)
     real_term_type("=" * 55, "\033[90m", speed=0.002)
-    real_term_type("  SYSTEM STATUS:   NORMAL", "\033[92m", speed=0.018)
-    real_term_type("  FILES:           100% UNTOUCHED & SAFE", "\033[92m", speed=0.018)
-    real_term_type("  DATA PRIVACY:    ZERO REAL DATA COLLECTED", "\033[92m", speed=0.018)
-    real_term_type("  USER INTEGRITY:  EMOTIONALLY COMPROMISED", "\033[93m", speed=0.018)
-    real_term_type("  DIGNITY:         DID NOT SURVIVE 💀", "\033[91m", speed=0.022, pause=0.35)
+    real_term_type("  SYSTEM STATUS:   NORMAL", "\033[92m", speed=0.035, pause=0.3)
+    real_term_type("  FILES:           100% UNTOUCHED & SAFE", "\033[92m", speed=0.035, pause=0.3)
+    real_term_type("  DATA PRIVACY:    ZERO REAL DATA COLLECTED", "\033[92m", speed=0.035, pause=0.3)
+    real_term_type("  USER INTEGRITY:  EMOTIONALLY COMPROMISED", "\033[93m", speed=0.035, pause=0.4)
+    real_term_type("  DIGNITY:         DID NOT SURVIVE 💀", "\033[91m", speed=0.045, pause=0.6)
     real_term_type("=" * 55, "\033[90m", speed=0.002)
     print()
-    real_term_type("Unfortunately, your pride did not survive.", "\033[93m", speed=0.03, pause=0.35)
-    real_term_type("Prank complete. Goodbye.", "\033[97m", speed=0.035, pause=0.8)
+    real_term_type("Unfortunately, your pride did not survive.", "\033[93m", speed=0.05, pause=0.6)
+    real_term_type("Prank complete. Goodbye.", "\033[97m", speed=0.055, pause=1.0)
 
 # ══════════════════════════════════════════ RETRO VIRUS CARD & DIALOG BUILDER
 
