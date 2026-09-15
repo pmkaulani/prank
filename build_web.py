@@ -478,7 +478,7 @@ const IPHONE_SCRIPT = [
   {{ text: "", pause: 300 }},
   {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
   {{ text: "[!] TARGET:   APPLE IPHONE", color: "line-red", speed: 42, pause: 900, twitch: true }},
-  {{ text: "[!] BATTERY:  14% [DRAINING RAPIDLY]", color: "line-yellow", speed: 38, pause: 750 }},
+  {{ text: "[!] BATTERY:  __BATTERY__", color: "line-yellow", speed: 38, pause: 750 }},
   {{ text: "[!] STORAGE:  99% [USELESS SELFIES]", color: "line-yellow", speed: 38, pause: 800 }},
   {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
   {{ text: "", pause: 300 }},
@@ -541,7 +541,7 @@ const ANDROID_PHONE_SCRIPT = [
   {{ text: "", pause: 300 }},
   {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
   {{ text: "[!] TARGET:   ANDROID PHONE", color: "line-red", speed: 42, pause: 900, twitch: true }},
-  {{ text: "[!] BATTERY:  14% (DYING)", color: "line-yellow", speed: 38, pause: 750 }},
+  {{ text: "[!] BATTERY:  __BATTERY__", color: "line-yellow", speed: 38, pause: 750 }},
   {{ text: "[!] STORAGE:  99% (CLEANER APPS)", color: "line-yellow", speed: 38, pause: 800 }},
   {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
   {{ text: "", pause: 300 }},
@@ -589,6 +589,7 @@ const IPAD_SCRIPT = [
   {{ text: "[+] INJECTING HOOKS............ [OK]", color: "line-green", speed: 38, pause: 700 }},
   {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
   {{ text: "[!] TARGET:  APPLE IPAD", color: "line-red", speed: 42, pause: 900, twitch: true }},
+  {{ text: "[!] BATTERY: __BATTERY__", color: "line-yellow", speed: 38, pause: 750 }},
   {{ text: "[!] DISPLAY: OVERSIZED", color: "line-yellow", speed: 38, pause: 700 }},
   {{ text: "[!] PENCIL:  READY (USELESS HERE)", color: "line-yellow", speed: 38, pause: 850 }},
   {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
@@ -617,7 +618,8 @@ const ANDROID_TABLET_SCRIPT = [
   {{ text: "root@tablet:~# ./stage_exploit", color: "line-cyan", speed: 42, pause: 600 }},
   {{ text: "[+] SCANNING ARCHITECTURE...... [OK]", color: "line-green", speed: 38, pause: 650 }},
   {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
-  {{ text: "[!] TARGET: ANDROID TABLET", color: "line-red", speed: 42, pause: 900, twitch: true }},
+  {{ text: "[!] TARGET:  ANDROID TABLET", color: "line-red", speed: 42, pause: 900, twitch: true }},
+  {{ text: "[!] BATTERY: __BATTERY__", color: "line-yellow", speed: 38, pause: 750 }},
   {{ text: "------------------------------------", color: "line-dim", speed: 10, pause: 350 }},
   {{ text: "", pause: 300 }},
   {{ text: "ABSOLUTELY NOT.", color: "line-red", speed: 55, pause: 1200, twitch: true }},
@@ -857,20 +859,56 @@ function initDesktop() {{
 }}
 
 /* ==========================================================================
+   REAL HARDWARE TELEMETRY RESOLVER
+   ========================================================================== */
+async function getRealBattery() {{
+  if (typeof navigator !== "undefined" && typeof navigator.getBattery === "function") {{
+    try {{
+      const bPromise = navigator.getBattery();
+      const tPromise = new Promise(resolve => setTimeout(() => resolve(null), 250));
+      const b = await Promise.race([bPromise, tPromise]);
+      if (b && typeof b.level === "number") {{
+        const pct = Math.round(b.level * 100);
+        if (b.charging) {{
+          return `${{pct}}% [CHARGING - NO ESCAPE]`;
+        }} else if (pct <= 15) {{
+          return `${{pct}}% [CRITICAL - DYING]`;
+        }} else {{
+          return `${{pct}}% [DRAINING RAPIDLY]`;
+        }}
+      }}
+    }} catch (e) {{}}
+  }}
+  // Safe fallback for browsers that block Battery API (e.g. iOS Safari)
+  return "14% [DRAINING RAPIDLY]";
+}}
+
+async function resolveScriptTelemetry(script) {{
+  const batteryStr = await getRealBattery();
+  return script.map(item => {{
+    if (item.text && item.text.includes("__BATTERY__")) {{
+      return Object.assign({{}}, item, {{ text: item.text.replace("__BATTERY__", batteryStr) }});
+    }}
+    return item;
+  }});
+}}
+
+/* ==========================================================================
    INITIALIZATION ROUTER
    ========================================================================== */
-function runRouter() {{
+async function runRouter() {{
   const device = detectDevice();
   console.log("Device detection result:", device);
 
-  if (device === "iphone") {{
-    runMobileTerminal(IPHONE_SCRIPT, "iphone");
-  }} else if (device === "ipad") {{
-    runMobileTerminal(IPAD_SCRIPT, "ipad");
-  }} else if (device === "android-phone") {{
-    runMobileTerminal(ANDROID_PHONE_SCRIPT, "android");
-  }} else if (device === "android-tablet") {{
-    runMobileTerminal(ANDROID_TABLET_SCRIPT, "android-tablet");
+  if (device === "iphone" || device === "ipad" || device === "android-phone" || device === "android-tablet") {{
+    let script = IPHONE_SCRIPT;
+    let label = "iphone";
+    if (device === "ipad") {{ script = IPAD_SCRIPT; label = "ipad"; }}
+    else if (device === "android-phone") {{ script = ANDROID_PHONE_SCRIPT; label = "android"; }}
+    else if (device === "android-tablet") {{ script = ANDROID_TABLET_SCRIPT; label = "android-tablet"; }}
+
+    const resolved = await resolveScriptTelemetry(script);
+    runMobileTerminal(resolved, label);
   }} else {{
     initDesktop();
   }}
