@@ -637,10 +637,6 @@ class WebChaosPrank {
   }
 
   onKey(e) {
-    if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
-      this.triggerEmergencyExit();
-      return;
-    }
     if (e.key >= '0' && e.key <= '9') {
       this.codeBuf = (this.codeBuf + e.key).slice(-4);
       if (this.codeBuf === this.exitCode) {

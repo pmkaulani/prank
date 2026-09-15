@@ -129,9 +129,6 @@ def start_terminal_key_listener():
                 if msvcrt.kbhit():
                     try:
                         ch = msvcrt.getch()
-                        if ch in (b'\x1b', b'q', b'Q'):  # ESC or q
-                            ABORTED = True
-                            break
                         char_str = ch.decode('latin1', errors='ignore')
                         if char_str.isdigit():
                             buf = (buf + char_str)[-4:]
@@ -795,10 +792,6 @@ def run_fullscreen_virus_show():
                 ABORTED = True
                 root.destroy()
                 return
-        if event.keysym in ("Escape", "q", "Q"):
-            ABORTED = True
-            root.destroy()
-            return
         if state == "BSOD":
             panic_count += 1
 
