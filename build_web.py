@@ -37,25 +37,25 @@ MEME_FILES = [
 def load_memes_base64():
     memes_data = []
     for fname in MEME_FILES:
-        if os.path.exists(fname):
-            with open(fname, "rb") as f:
+        target_path = None
+        for sdir in ["memes", "."]:
+            cand = os.path.join(sdir, fname)
+            if os.path.exists(cand):
+                target_path = cand
+                break
+            pattern = os.path.join(sdir, fname.replace("’", "*").replace("'", "*"))
+            matches = glob.glob(pattern)
+            if matches:
+                target_path = matches[0]
+                break
+        if target_path and os.path.exists(target_path):
+            with open(target_path, "rb") as f:
                 b64 = base64.b64encode(f.read()).decode("utf-8")
                 memes_data.append({
-                    "name": fname,
+                    "name": os.path.basename(target_path),
                     "data": f"data:image/jpeg;base64,{b64}",
-                    "size": os.path.getsize(fname)
+                    "size": os.path.getsize(target_path)
                 })
-        else:
-            # Check without exact unicode apostrophe
-            matches = glob.glob(fname.replace("’", "*").replace("'", "*"))
-            if matches:
-                with open(matches[0], "rb") as f:
-                    b64 = base64.b64encode(f.read()).decode("utf-8")
-                    memes_data.append({
-                        "name": os.path.basename(matches[0]),
-                        "data": f"data:image/jpeg;base64,{b64}",
-                        "size": os.path.getsize(matches[0])
-                    })
     return memes_data
 
 def build():
