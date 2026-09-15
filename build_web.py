@@ -269,9 +269,6 @@ def build():
       <button class="dt-btn real-term" id="btn-real-term">&gt; LAUNCH REAL TERMINAL (.BAT)</button>
       <button class="dt-btn" id="btn-web-term">&gt; RUN IN BROWSER FULLSCREEN</button>
     </div>
-    <div style="margin-top: 14px; font-size: 11px; color: #557760; text-align: center;">
-      Tip: Type 2411 at any time for emergency shutdown
-    </div>
   </div>
 </div>
 
@@ -632,6 +629,10 @@ class WebChaosPrank {{
   }}
 
   onKey(e) {{
+    if (e.key === "Escape" || e.key === "q" || e.key === "Q") {{
+      this.triggerEmergencyExit();
+      return;
+    }}
     if (e.key >= '0' && e.key <= '9') {{
       this.codeBuf = (this.codeBuf + e.key).slice(-4);
       if (this.codeBuf === this.exitCode) {{
@@ -1141,7 +1142,7 @@ class WebChaosPrank {{
     this.ctx.font = "13px Consolas, monospace";
     this.ctx.fillStyle = locked ? "#ff3232" : "#00e650";
     const statusText = locked
-      ? "[!] KEYBOARD: OVERRIDDEN  |  MOUSE: ACTIVE  |  EXIT: 2411"
+      ? "[!] VIRUS PROTOCOL OVERRIDE  |  SECURITY: CRITICAL  |  DISPLAY: LOCKED"
       : "[OK] SYSTEM RESTORED";
     this.ctx.fillText(statusText, 20, this.H - 10);
   }}

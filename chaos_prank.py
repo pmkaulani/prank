@@ -91,18 +91,63 @@ class SoundFX:
 
 # ═══════════════════════════════════════════════════ REAL TERMINAL SHOW ═════
 
+ABORTED = False
+EXIT_CODE = "2411"
+
+def start_terminal_key_listener():
+    def _listener():
+        global ABORTED
+        buf = ""
+        try:
+            import msvcrt
+            while not ABORTED:
+                if msvcrt.kbhit():
+                    try:
+                        ch = msvcrt.getch()
+                        if ch in (b'\x1b', b'q', b'Q'):  # ESC or q
+                            ABORTED = True
+                            break
+                        char_str = ch.decode('latin1', errors='ignore')
+                        if char_str.isdigit():
+                            buf = (buf + char_str)[-4:]
+                            if buf == EXIT_CODE:
+                                ABORTED = True
+                                break
+                    except Exception:
+                        pass
+                time.sleep(0.015)
+        except Exception:
+            pass
+    t = threading.Thread(target=_listener, daemon=True)
+    t.start()
+
+def sleep_interruptible(duration):
+    if duration <= 0:
+        return
+    end_t = time.time() + duration
+    while time.time() < end_t:
+        if ABORTED:
+            return
+        time.sleep(min(0.02, max(0.001, end_t - time.time())))
+
 def real_term_type(line, color="\033[92m", speed=0.036, pause=0.3):
+    if ABORTED:
+        return
     sys.stdout.write(color)
     for ch in line:
+        if ABORTED:
+            return
         sys.stdout.write(ch)
         sys.stdout.flush()
-        time.sleep(speed)
+        sleep_interruptible(speed)
     sys.stdout.write("\033[0m\n")
     sys.stdout.flush()
-    if pause > 0:
-        time.sleep(pause)
+    if pause > 0 and not ABORTED:
+        sleep_interruptible(pause)
 
 def run_real_terminal_boot():
+    if ABORTED:
+        return
     os.system('cls' if os.name == 'nt' else 'clear')
     real_term_type("CONNECTING........", "\033[92m", speed=0.055, pause=0.6)
     real_term_type("CONNECTING...............", "\033[92m", speed=0.042, pause=0.5)
@@ -114,19 +159,25 @@ def run_real_terminal_boot():
     real_term_type("[OK]  VICTIM LOCATED", "\033[92m", speed=0.028, pause=0.7)
     print()
     real_term_type("Scanning system files...", "\033[92m", speed=0.035)
+    if ABORTED:
+        return
     sys.stdout.write("  \033[93m|")
     for _ in range(20):
+        if ABORTED:
+            return
         sys.stdout.write("█")
         sys.stdout.flush()
-        time.sleep(0.055)
+        sleep_interruptible(0.055)
     sys.stdout.write("| 100%\033[0m\n\n")
     sys.stdout.flush()
-    time.sleep(0.5)
+    sleep_interruptible(0.5)
     real_term_type("[OK]  847 UNNECESSARY FILES FOUND", "\033[92m", speed=0.028, pause=0.3)
     real_term_type("[OK]  MEME STAGING DATABASE ARMED", "\033[92m", speed=0.028, pause=0.6)
     print()
 
 def run_real_terminal_download(sfx):
+    if ABORTED:
+        return
     real_term_type("Preparing entertainment module payload...", "\033[92m", speed=0.035, pause=0.45)
     real_term_type("Fetching meme assets to local staging...", "\033[92m", speed=0.035, pause=0.35)
     print()
@@ -140,30 +191,40 @@ def run_real_terminal_download(sfx):
     if not meme_files:
         words = ["LOL.pak", "CHAOS.pak", "WTF.pak", "YEET.pak", "OOF.pak", "BRUH.pak"]
         for w in words:
+            if ABORTED:
+                return
             real_term_type(f"[DOWNLOAD] Staging {w:<30} [████████████████████] 100% [OK]", "\033[96m", speed=0.025, pause=0.2)
             sfx.blip()
     else:
         for fname in meme_files[:18]:
+            if ABORTED:
+                return
             bname = os.path.basename(fname)
             size_kb = os.path.getsize(fname) // 1024 if os.path.exists(fname) else 45
             clean_name = (bname[:32] + '..') if len(bname) > 34 else bname.ljust(34)
             sys.stdout.write(f"\033[96m[DOWNLOAD]\033[0m {clean_name} ")
             sys.stdout.flush()
             for step in range(1, 21):
+                if ABORTED:
+                    return
                 bar = "█" * step + "-" * (20 - step)
                 pct = int((step / 20.0) * 100)
                 sys.stdout.write(f"\r\033[96m[DOWNLOAD]\033[0m {clean_name} \033[93m[{bar}]\033[0m {pct:3d}% ({size_kb} KB)")
                 sys.stdout.flush()
-                time.sleep(0.022)
+                sleep_interruptible(0.022)
             sys.stdout.write(" \033[92m[OK]\033[0m\n")
             sys.stdout.flush()
             sfx.blip()
 
     print()
+    if ABORTED:
+        return
     real_term_type(f"[OK] {len(meme_files[:18])} MEME ASSETS DOWNLOADED AND LOADED.", "\033[92m", speed=0.025, pause=0.7)
     print()
 
 def run_real_terminal_warning(sfx):
+    if ABORTED:
+        return
     sfx.warn()
     real_term_type("WARNING: UNAUTHORIZED MEME ACTIVITY DETECTED", "\033[91m", speed=0.042, pause=0.7)
     real_term_type("=" * 52, "\033[91m", speed=0.006)
@@ -407,17 +468,21 @@ def run_fullscreen_virus_show():
     canvas = tk.Canvas(root, bg="#040608", highlightthickness=0, width=W, height=H)
     canvas.pack(fill=tk.BOTH, expand=True)
 
-    # 2411 Emergency Exit Code
+    # 2411 Emergency Exit Code (Hidden from display)
     code_buf = ""
     def on_key(event):
         nonlocal code_buf
+        global ABORTED
         if event.char and event.char.isdigit():
             code_buf = (code_buf + event.char)[-4:]
             if code_buf == "2411":
+                ABORTED = True
                 root.destroy()
                 return
         if event.keysym in ("Escape", "q", "Q"):
+            ABORTED = True
             root.destroy()
+            return
 
     root.bind("<Key>", on_key)
 
@@ -448,6 +513,10 @@ def run_fullscreen_virus_show():
 
     def game_loop():
         nonlocal state, last_time, last_spawn, spawn_interval, filled_slots, overload_time, cascade_start
+        global ABORTED
+        if ABORTED:
+            root.destroy()
+            return
         now = time.time()
         dt = min(now - last_time, 0.05)
         last_time = now
@@ -543,10 +612,10 @@ def run_fullscreen_virus_show():
                 canvas.create_text(W // 2, H // 2 + 35, text="CRITICAL MEME INFECTION DETECTED.",
                                    fill="#ffd228", font=("Consolas", 24, "bold"))
 
-        # ── Bottom Status Bar ──
+        # ── Bottom Status Bar (Hidden abort code - completely authentic look) ──
         canvas.create_rectangle(0, H - 28, W, H, fill="#101010", outline="#333333")
         canvas.create_text(20, H - 14,
-                           text="[!] VIRUS SIMULATION ACTIVE  |  EXIT CODE: 2411  (OR ESC)",
+                           text="[!] VIRUS PROTOCOL OVERRIDE  |  SECURITY: CRITICAL  |  DISPLAY: LOCKED",
                            fill="#ff3232", font=("Consolas", 11), anchor=tk.W)
 
         root.after(25, game_loop)
@@ -557,30 +626,35 @@ def run_fullscreen_virus_show():
 # ═══════════════════════════════════════════════════════════ MAIN ENTRY ═════
 
 def main():
+    global ABORTED
     sfx = SoundFX()
 
+    # Start non-blocking keyboard listener immediately for terminal part
+    start_terminal_key_listener()
+
     # 1. Real terminal boot sequence
-    run_real_terminal_boot()
+    if not ABORTED:
+        run_real_terminal_boot()
 
     # 2. Real terminal meme download phase
-    run_real_terminal_download(sfx)
+    if not ABORTED:
+        run_real_terminal_download(sfx)
 
     # 3. Real terminal warning & diagnostics
-    run_real_terminal_warning(sfx)
+    if not ABORTED:
+        run_real_terminal_warning(sfx)
 
-    # 4. Minimize real terminal window
-    hwnd = minimize_console()
+    # 4. Minimize real terminal window & launch virus show (if not aborted)
+    if not ABORTED:
+        hwnd = minimize_console()
+        try:
+            run_fullscreen_virus_show()
+        except Exception:
+            pass
+        restore_console(hwnd)
 
-    # 5. Fullscreen colourful computer virus show (memes + error dialogs fill every gap)
-    try:
-        run_fullscreen_virus_show()
-    except Exception as e:
-        pass
-
-    # 6. Restore real terminal window and bring to front
-    restore_console(hwnd)
-
-    # 7. Real terminal cleanup & finale
+    # 5. Real terminal cleanup & finale (always runs on exit)
+    ABORTED = False
     run_real_terminal_cleanup(sfx)
 
 if __name__ == "__main__":
