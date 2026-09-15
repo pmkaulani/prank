@@ -118,28 +118,64 @@ class SoundFX:
 
 ABORTED = False
 EXIT_CODE = "2411"
+GLOBAL_ABORT_CALLBACK = None
 
-def start_terminal_key_listener():
+VK_DIGITS = {
+    0x30: '0', 0x31: '1', 0x32: '2', 0x33: '3', 0x34: '4',
+    0x35: '5', 0x36: '6', 0x37: '7', 0x38: '8', 0x39: '9',
+    0x60: '0', 0x61: '1', 0x62: '2', 0x63: '3', 0x64: '4',
+    0x65: '5', 0x66: '6', 0x67: '7', 0x68: '8', 0x69: '9'
+}
+
+def start_global_exit_listener():
     def _listener():
-        global ABORTED
+        global ABORTED, GLOBAL_ABORT_CALLBACK
         buf = ""
-        try:
-            import msvcrt
-            while not ABORTED:
-                if msvcrt.kbhit():
-                    try:
-                        ch = msvcrt.getch()
-                        char_str = ch.decode('latin1', errors='ignore')
-                        if char_str.isdigit():
-                            buf = (buf + char_str)[-4:]
+        prev_down = set()
+        user32 = ctypes.windll.user32 if (os.name == 'nt' and hasattr(ctypes, 'windll')) else None
+        while not ABORTED:
+            # 1. Global Windows key state polling (unconditional across all windows)
+            if user32:
+                try:
+                    for vk, digit in VK_DIGITS.items():
+                        is_down = (user32.GetAsyncKeyState(vk) & 0x8000) != 0
+                        if is_down and vk not in prev_down:
+                            prev_down.add(vk)
+                            buf = (buf + digit)[-4:]
                             if buf == EXIT_CODE:
                                 ABORTED = True
-                                break
-                    except Exception:
-                        pass
-                time.sleep(0.015)
-        except Exception:
-            pass
+                                if GLOBAL_ABORT_CALLBACK:
+                                    try:
+                                        GLOBAL_ABORT_CALLBACK()
+                                    except Exception:
+                                        pass
+                                return
+                        elif not is_down and vk in prev_down:
+                            prev_down.discard(vk)
+                except Exception:
+                    pass
+
+            # 2. Console input buffer fallback
+            try:
+                import msvcrt
+                if msvcrt.kbhit():
+                    ch = msvcrt.getch()
+                    char_str = ch.decode('latin1', errors='ignore')
+                    if char_str.isdigit():
+                        buf = (buf + char_str)[-4:]
+                        if buf == EXIT_CODE:
+                            ABORTED = True
+                            if GLOBAL_ABORT_CALLBACK:
+                                try:
+                                    GLOBAL_ABORT_CALLBACK()
+                                except Exception:
+                                    pass
+                            return
+            except Exception:
+                pass
+
+            time.sleep(0.01)
+
     t = threading.Thread(target=_listener, daemon=True)
     t.start()
 
@@ -719,6 +755,7 @@ def draw_startup_repair(canvas, W, H, elapsed):
         y += 26
 
 def run_fullscreen_virus_show():
+    global GLOBAL_ABORT_CALLBACK
     # Load all meme images with PIL
     raw_memes = []
     for sdir in ("memes", "."):
@@ -770,6 +807,17 @@ def run_fullscreen_virus_show():
     canvas = tk.Canvas(root, bg=TRANS_COLOR, highlightthickness=0, width=W, height=H)
     canvas.pack(fill=tk.BOTH, expand=True)
 
+    # Force focus so Tkinter captures all keyboard input directly
+    try:
+        root.lift()
+        root.focus_force()
+        canvas.focus_set()
+    except Exception:
+        pass
+
+    # Link global background listener to destroy Tkinter root immediately on 2411
+    GLOBAL_ABORT_CALLBACK = lambda: root.after(0, root.destroy)
+
     # Mouse tracking for dodging buttons
     mouse_x, mouse_y = -999, -999
     def on_mouse(event):
@@ -786,12 +834,27 @@ def run_fullscreen_virus_show():
     def on_key(event):
         nonlocal code_buf, panic_count
         global ABORTED
+        digit = None
         if event.char and event.char.isdigit():
-            code_buf = (code_buf + event.char)[-4:]
+            digit = event.char
+        elif event.keysym and event.keysym.isdigit():
+            digit = event.keysym
+        elif event.keysym.startswith("KP_") and event.keysym[3:].isdigit():
+            digit = event.keysym[3:]
+        elif event.keysym == "KP_End":
+            digit = "1"
+        elif event.keysym == "KP_Down":
+            digit = "2"
+        elif event.keysym == "KP_Left":
+            digit = "4"
+
+        if digit:
+            code_buf = (code_buf + digit)[-4:]
             if code_buf == "2411":
                 ABORTED = True
                 root.destroy()
                 return
+
         if state == "BSOD":
             panic_count += 1
 
@@ -800,8 +863,8 @@ def run_fullscreen_virus_show():
         if state == "BSOD":
             panic_count += 1
 
-    root.bind("<Key>", on_key)
-    root.bind("<Button-1>", on_click)
+    root.bind_all("<Key>", on_key)
+    root.bind_all("<Button-1>", on_click)
 
     # ── Gap-Filling Grid Initialization ──
     COLS, ROWS = 5, 4
@@ -1000,6 +1063,7 @@ def run_fullscreen_virus_show():
 
     root.after(50, game_loop)
     root.mainloop()
+    GLOBAL_ABORT_CALLBACK = None
 
 # ═══════════════════════════════════════════════════════════ MAIN ENTRY ═════
 
@@ -1007,8 +1071,8 @@ def main():
     global ABORTED
     sfx = SoundFX()
 
-    # Start non-blocking keyboard listener immediately for terminal part
-    start_terminal_key_listener()
+    # Start non-blocking global keyboard listener (active everywhere on system)
+    start_global_exit_listener()
 
     # 1. Real terminal boot sequence
     if not ABORTED:
