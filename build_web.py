@@ -749,21 +749,59 @@ class WebChaosPrank {{
       "[OK]  VICTIM LOCATED",
       "",
       "============================================================",
-      "[+] TARGET USER IDENTIFIED: \"Admin\"",
-      "[+] WORKSTATION: \"WIN11-PC\" (Windows 11 Pro 64-bit)",
-      "[+] CPU: Intel(R) Core(TM) i7-12700H @ 2.70GHz",
-      "[+] INTERNAL IP: 192.168.1.104 | MAC: 3C:7C:3F:8A:XX:XX",
-      "[+] POWER STATUS: 92% [AC_ONLINE]",
+      "[+] TARGET USER IDENTIFIED: \"P_KAULANI\"",
+      "[+] WORKSTATION: \"DESKTOP-7X4N2\" (Windows 11 Pro 64-bit)",
+      "[+] CPU: AMD Ryzen 9 7950X (OVERHEATING - 94°C)",
+      "[+] INTERNAL NETWORK: 192.168.0.███ | MAC: 00:1A:2B:3C:██:██",
+      "[+] POWER / BATTERY: 4% [PLUG IN IMMEDIATELY OR DIE]",
       "============================================================",
+      "",
+      "[PRIVILEGE] Current user status: GUEST / PEASANT",
+      "[PRIVILEGE] Escalating to: ADMINISTRATOR... OK",
+      "[PRIVILEGE] Escalating to: SYSTEM NT AUTHORITY... OK",
+      "[PRIVILEGE] Escalating to: SUPREME OVERLORD OF THIS LAPTOP... GRANTED",
+      "",
+      "[CAMERA] Initializing front optical sensor...",
+      "[CAMERA] Human face detected in front of screen.",
+      "[CAMERA] Expression: VISIBLY SWEATING & CONFUSED 💀",
+      "[CAMERA] Status: NOT ACTUALLY ACCESSING CAMERA. CHILL.",
       "",
       "Scanning system files...",
       "  |████████████████████| 100%",
       "",
       "Targeting user directories for exfiltration...",
-      "[EXFILTRATE] C:\\Users\\Admin\\Documents\\passwords.xlsx ....... [ENCRYPTED]",
-      "[EXFILTRATE] C:\\Users\\Admin\\Pictures\\IMG_4921.jpg ......... [UPLOADING]",
-      "[EXFILTRATE] Chrome Session Master Key & Cookies .............. [EXTRACTED]",
-      "[EXFILTRATE] Remote Gateway: 185.220.101.42:4444 ............ [CONNECTED]",
+      "[EXFILTRATE] C:\\Users\\Target\\Desktop\\Final_Project_v2_FINAL.docx .. [ENCRYPTED]",
+      "[EXFILTRATE] C:\\Users\\Target\\Documents\\passwords_dont_open.txt ... [HELD HOSTAGE]",
+      "[EXFILTRATE] C:\\Users\\Target\\Pictures\\childhood_photo.png ....... [UPLOADING]",
+      "[EXFILTRATE] C:\\Users\\Target\\AppData\\Browsing_History_3AM.db ... [EXTRACTED]",
+      "",
+      "============================================================",
+      "ALL YOUR FILES HAVE BEEN ENCRYPTED (AES-9000).",
+      "SEND 500 DOGECOIN TO WALLET: 0xDEAD...BEEF",
+      "...",
+      "JUST KIDDING. WE DON'T TOUCH YOUR FILES. 😭 BUT YOU LOOKED WORRIED.",
+      "============================================================",
+      "",
+      "[AV_BATTLE] Windows Defender: DETECTED",
+      "[AV_BATTLE] Deploying weaponized memes against antivirus...",
+      "[AV_BATTLE] Windows Defender: CONFUSED",
+      "[AV_BATTLE] System Firewall: EMOTIONALLY UNAVAILABLE",
+      "[AV_BATTLE] Third-party Antivirus: CRYING IN A CORNER",
+      "[AV_BATTLE] Security status: SURRENDERED",
+      "",
+      "[OPERATOR] Remote terminal session established.",
+      "[OPERATOR] > cd system32",
+      "[OPERATOR] > rm -rf /* ... wait wrong operating system",
+      "[OPERATOR] > what button do I click guys",
+      "[OPERATOR] > sorry first day at the ransomware syndicate",
+      "[ERROR] Remote operator appears to be an intern.",
+      "",
+      "[BEHAVIOR] Monitoring user input and keyboard pressure...",
+      "[BEHAVIOR] Panic level: 37%",
+      "[BEHAVIOR] Panic level: 64%",
+      "[BEHAVIOR] Panic level: [███████████████] 97%",
+      "[BEHAVIOR] Psychological resistance detected.",
+      "[BEHAVIOR] Resistance level: EMBARRASSING",
       "",
       "[OK]  MEME STAGING DATABASE ARMED",
       "",
@@ -926,7 +964,9 @@ class WebChaosPrank {{
         this.revealedLines.push("");
         this.revealedLines.push("Attempting containment... FAILED");
         this.revealedLines.push("UNAUTHORIZED MEME ACTIVITY DETECTED");
-        this.revealedLines.push("Minimizing terminal & deploying virus payload in 3... 2... 1...");
+        this.revealedLines.push("Minimizing terminal & deploying virus payload in 10... 7... 3... 47...");
+        this.revealedLines.push("WE CHANGED OUR MIND.");
+        this.revealedLines.push("Just kidding: 5.. 4.. 3.. 2.. 1.. LOL");
         this.sfx.warn();
         this.state = "TILING_GAPS";
         this.initGrid();
@@ -1006,7 +1046,7 @@ class WebChaosPrank {{
     // 7. STARTUP REPAIR (Phase 8 - Diagnostic Progress)
     else if (this.state === "STARTUP_REPAIR") {{
       const elapsed = (performance.now() - this.repairStart) / 1000;
-      if (elapsed >= 3.8) {{
+      if (elapsed >= 4.2) {{
         this.sfx.success();
         this.triggerEmergencyExit();
       }}
@@ -1028,13 +1068,27 @@ class WebChaosPrank {{
           "Restoring display...                [OK]",
           "Restoring system state...           [OK]",
           "",
-          "Prank complete.",
-          "You survived.",
+          "> BOOTING AI MODULE...",
+          "> PERSONALITY MODULE........OK",
           "",
-          "> SYSTEM STATUS:  NORMAL",
-          "> USER STATUS:    TRAUMATIZED. Probably.",
+          "> HELLO.",
+          "> I HAVE BEEN WATCHING.",
+          "> ...",
+          "> NOT ACTUALLY.",
+          "> BUT THAT WOULD HAVE BEEN FUNNY.",
           "",
-          "Goodbye."
+          "============================================================",
+          "               FINAL DIGNITY AUDIT               ",
+          "============================================================",
+          "  SYSTEM STATUS:   NORMAL",
+          "  FILES:           100% UNTOUCHED & SAFE",
+          "  DATA PRIVACY:    ZERO REAL DATA COLLECTED",
+          "  USER INTEGRITY:  EMOTIONALLY COMPROMISED",
+          "  DIGNITY:         DID NOT SURVIVE 💀",
+          "============================================================",
+          "",
+          "Unfortunately, your pride did not survive.",
+          "Prank complete. Goodbye."
         ];
         this.cleanupRevealed = [];
         this.cleanupIdx = 0;
@@ -1384,28 +1438,33 @@ class WebChaosPrank {{
     this.ctx.fillStyle = "#000000";
     this.ctx.fillRect(0, 0, this.W, this.H);
 
-    const pct = Math.min(100, Math.floor((elapsed / 2.8) * 100));
-    const barLen = Math.floor(pct / 5);
-    const barStr = "█".repeat(barLen) + "-".repeat(20 - barLen);
-
     const lines = [
       {{ t: "Windows failed to start. A recent hardware or software change might be the cause.", f: "bold 14px 'Courier New', monospace", c: "#ffffff" }},
       {{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }},
-      {{ t: "Startup Repair is checking your system for problems...", f: "12px 'Courier New', monospace", c: "#cccccc" }},
-      {{ t: `Attempting automatic repairs: [${{barStr}}] ${{pct}}%`, f: "12px 'Courier New', monospace", c: pct >= 100 ? "#00e650" : "#ffd228" }},
-      {{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }}
+      {{ t: "Startup Repair is checking your system for problems...", f: "12px 'Courier New', monospace", c: "#cccccc" }}
     ];
 
-    if (pct >= 40) {{
-      lines.push({{ t: "Diagnosing root cause... FOUND", f: "12px 'Courier New', monospace", c: "#ff5555" }});
-      lines.push({{ t: "Root cause: Extreme lack of computer literacy.", f: "12px 'Courier New', monospace", c: "#ff5555" }});
-    }}
-    if (pct >= 75) {{
-      lines.push({{ t: "Restoring system state and removing meme contagion... [OK]", f: "12px 'Courier New', monospace", c: "#00e650" }});
-    }}
-    if (pct >= 100) {{
+    if (elapsed < 1.4) {{
+      const pct = Math.min(78, Math.max(12, Math.floor((elapsed / 1.4) * 78)));
+      const barLen = Math.floor(pct / 5);
+      const barStr = "█".repeat(barLen) + "-".repeat(20 - barLen);
+      lines.push({{ t: `Attempting automatic repairs: [${{barStr}}] ${{pct}}%`, f: "12px 'Courier New', monospace", c: "#ffd228" }});
       lines.push({{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }});
-      lines.push({{ t: "Repairs complete. Returning to terminal in 2... 1...", f: "bold 14px 'Courier New', monospace", c: "#ffffff" }});
+      if (pct >= 40) {{
+        lines.push({{ t: "Diagnosing root cause... EXTREME LACK OF COMPUTER LITERACY", f: "12px 'Courier New', monospace", c: "#ff5555" }});
+      }}
+    }} else if (elapsed < 2.8) {{
+      lines.push({{ t: "Attempting automatic repairs: [--------------------]   0%", f: "12px 'Courier New', monospace", c: "#ff5555" }});
+      lines.push({{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }});
+      lines.push({{ t: "ERROR: Repair made it significantly worse.", f: "12px 'Courier New', monospace", c: "#ff3232" }});
+      lines.push({{ t: "Diagnostic report: bro we're cooked 💀", f: "12px 'Courier New', monospace", c: "#ffd228" }});
+    }} else {{
+      lines.push({{ t: "Attempting automatic repairs: [--------------------]   FAILED", f: "12px 'Courier New', monospace", c: "#ff5555" }});
+      lines.push({{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }});
+      lines.push({{ t: "ERROR: Automatic recovery abandoned.", f: "12px 'Courier New', monospace", c: "#ff3232" }});
+      lines.push({{ t: "Final Attempt: Rebooting reality... [OK]", f: "12px 'Courier New', monospace", c: "#00e650" }});
+      lines.push({{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }});
+      lines.push({{ t: "Returning control to terminal in 1...", f: "bold 14px 'Courier New', monospace", c: "#ffffff" }});
     }}
 
     let y = Math.max(40, (this.H - lines.length * 26) / 2);
