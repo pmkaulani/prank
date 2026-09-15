@@ -211,27 +211,6 @@
   .cmd-hint b {
     color: #00e650;
   }
-  .preview-btn {
-    width: 100%;
-    background: #0d1612;
-    border: 1px solid #1a3320;
-    color: #557760;
-    padding: 10px 14px;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
-    letter-spacing: 0.5px;
-    margin-top: 12px;
-  }
-  .preview-btn:hover {
-    border-color: #00e650;
-    color: #00e650;
-    background: #0f1c14;
-    box-shadow: 0 0 10px rgba(0, 230, 80, 0.2);
-  }
 </style>
 </head>
 <body>
@@ -268,8 +247,6 @@
       &gt; <b>Step 1:</b> Press <b>Win + R</b>, type <b>cmd</b>, and press <b>Enter</b>.<br>
       &gt; <b>Step 2:</b> Paste the command and press <b>Enter</b>.
     </div>
-
-    <button class="preview-btn" id="btn-preview">&gt; TEST IN-BROWSER SIMULATION &lt;</button>
   </div>
 </div>
 
@@ -1419,16 +1396,6 @@ window.addEventListener("DOMContentLoaded", () => {
         }, 2500);
       }
     });
-
-    const previewBtn = document.getElementById("btn-preview");
-    if (previewBtn) {
-      previewBtn.addEventListener("click", () => {
-        sfx.init();
-        sfx.blip();
-        launcher.style.display = "none";
-        prank.start();
-      });
-    }
   }
 });
 </script>
