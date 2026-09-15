@@ -11,14 +11,18 @@ CHAOS PRANK — RETRO VIRUS POPUP & MEME CASCADE EDITION
 7. 2411 emergency exit code monitored at every millisecond
 """
 
+import getpass
 import glob
 import math
 import os
+import platform
 import random
+import socket
 import sys
 import threading
 import time
 import tkinter as tk
+import uuid
 from PIL import Image, ImageDraw, ImageTk
 
 # Reconfigure stdout to UTF-8 on Windows
@@ -31,6 +35,7 @@ except Exception:
 # Enable Windows ANSI virtual terminal processing
 if os.name == 'nt':
     import ctypes
+    import winreg
     try:
         kernel32 = ctypes.windll.kernel32
         hOut = kernel32.GetStdHandle(-11)
@@ -43,7 +48,6 @@ if os.name == 'nt':
 
 def minimize_console():
     if os.name == 'nt':
-        import ctypes
         try:
             hwnd = ctypes.windll.kernel32.GetConsoleWindow()
             if hwnd:
@@ -55,7 +59,6 @@ def minimize_console():
 
 def restore_console(hwnd):
     if os.name == 'nt' and hwnd:
-        import ctypes
         try:
             ctypes.windll.user32.ShowWindow(hwnd, 9)  # SW_RESTORE
             ctypes.windll.user32.SetForegroundWindow(hwnd)
@@ -92,6 +95,24 @@ class SoundFX:
     def dodge(self):
         f = random.choice([1400, 1600, 1850])
         threading.Thread(target=_beep, args=(f, 50), daemon=True).start()
+
+    def win_error(self):
+        def _play():
+            try:
+                import winsound
+                winsound.PlaySound("SystemHand", winsound.SND_ALIAS)
+            except Exception:
+                _beep(160, 350)
+        threading.Thread(target=_play, daemon=True).start()
+
+    def win_exclamation(self):
+        def _play():
+            try:
+                import winsound
+                winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
+            except Exception:
+                _beep(440, 120)
+        threading.Thread(target=_play, daemon=True).start()
 
 # ═══════════════════════════════════════════════════ REAL TERMINAL SHOW ═════
 
@@ -149,7 +170,111 @@ def real_term_type(line, color="\033[92m", speed=0.036, pause=0.3):
     if pause > 0 and not ABORTED:
         sleep_interruptible(pause)
 
-def run_real_terminal_boot():
+def get_system_dox_info():
+    user = os.environ.get("USERNAME") or getpass.getuser()
+    host = socket.gethostname()
+    os_name = f"{platform.system()} {platform.release()}"
+    try:
+        ip = socket.gethostbyname(host)
+    except Exception:
+        ip = "192.168.1.104"
+    mac = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff) for ele in range(0,8*6,8)][::-1]).upper()
+    
+    cpu_name = platform.processor() or "Multi-Core x64 Processor"
+    if os.name == 'nt':
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+            cpu_val, _ = winreg.QueryValueEx(key, "ProcessorNameString")
+            winreg.CloseKey(key)
+            if cpu_val:
+                cpu_name = cpu_val.strip()
+        except Exception:
+            pass
+
+    battery_str = "AC_POWER [ONLINE]"
+    if os.name == 'nt':
+        try:
+            class SPS(ctypes.Structure):
+                _fields_ = [
+                    ('ACLineStatus', ctypes.c_byte),
+                    ('BatteryFlag', ctypes.c_byte),
+                    ('BatteryLifePercent', ctypes.c_byte),
+                    ('Reserved1', ctypes.c_byte),
+                    ('BatteryLifeTime', ctypes.c_ulong),
+                    ('BatteryFullLifeTime', ctypes.c_ulong),
+                ]
+            sps = SPS()
+            if ctypes.windll.kernel32.GetSystemPowerStatus(ctypes.byref(sps)):
+                pct = sps.BatteryLifePercent
+                if 0 <= pct <= 100:
+                    ac = "CHARGING" if sps.ACLineStatus == 1 else "DISCHARGING"
+                    battery_str = f"{pct}% [{ac}]"
+        except Exception:
+            pass
+
+    return {
+        "user": user,
+        "host": host,
+        "os": os_name,
+        "ip": ip,
+        "mac": mac,
+        "cpu": cpu_name,
+        "battery": battery_str
+    }
+
+def run_file_exfil_stream(sfx):
+    if ABORTED:
+        return
+    real_term_type("Targeting user directories for exfiltration...", "\033[93m", speed=0.03, pause=0.35)
+    user_home = os.path.expanduser("~")
+    cand_dirs = [
+        os.path.join(user_home, "Desktop"),
+        os.path.join(user_home, "Documents"),
+        os.path.join(user_home, "Downloads"),
+        os.path.join(user_home, "Pictures")
+    ]
+    found_files = []
+    for d in cand_dirs:
+        if os.path.exists(d):
+            try:
+                for entry in os.scandir(d):
+                    if entry.is_file() and not entry.name.startswith(('.', '~', '$')):
+                        found_files.append(entry.path)
+                        if len(found_files) >= 7:
+                            break
+            except Exception:
+                pass
+        if len(found_files) >= 7:
+            break
+
+    decoys = [
+        os.path.join(user_home, "Documents", "passwords_backup.xlsx"),
+        os.path.join(user_home, "AppData", "Local", "Google", "Chrome", "Login Data"),
+        os.path.join(user_home, ".ssh", "id_rsa_key"),
+        os.path.join(user_home, "Documents", "tax_returns_2024.pdf")
+    ]
+    for dec in decoys:
+        if len(found_files) < 7:
+            found_files.append(dec)
+
+    for fpath in found_files[:7]:
+        if ABORTED:
+            return
+        disp = fpath if len(fpath) <= 46 else ("..." + fpath[-43:])
+        sys.stdout.write(f"\033[91m[EXFILTRATE]\033[0m {disp:<47} ")
+        sys.stdout.flush()
+        sleep_interruptible(0.055)
+        status = random.choice(["[ENCRYPTED]", "[LOCKED (AES-256)]", "[UPLOADING -> C2]"])
+        sys.stdout.write(f"\033[93m{status}\033[0m\n")
+        sys.stdout.flush()
+        sfx.blip()
+        sleep_interruptible(0.07)
+
+    real_term_type("[+] Chrome Session Master Key: EXTRACTED", "\033[91m", speed=0.025, pause=0.2)
+    real_term_type("[+] Remote Darknet Gateway: 185.220.101.42:4444 [CONNECTED]", "\033[91m", speed=0.025, pause=0.5)
+    print()
+
+def run_real_terminal_boot(sfx):
     if ABORTED:
         return
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -160,8 +285,20 @@ def run_real_terminal_boot():
     print()
     real_term_type("[OK]  DISPLAY FOUND", "\033[92m", speed=0.028, pause=0.35)
     real_term_type("[OK]  ADMINISTRATOR ACCESS GRANTED", "\033[92m", speed=0.028, pause=0.35)
-    real_term_type("[OK]  VICTIM LOCATED", "\033[92m", speed=0.028, pause=0.7)
+    real_term_type("[OK]  VICTIM LOCATED", "\033[92m", speed=0.028, pause=0.5)
     print()
+
+    # ── Feature 1: Real Hardware & User Doxxing ──
+    dox = get_system_dox_info()
+    real_term_type("=" * 60, "\033[90m", speed=0.003)
+    real_term_type(f"[+] TARGET USER IDENTIFIED: \"{dox['user']}\"", "\033[92m", speed=0.028, pause=0.35)
+    real_term_type(f"[+] WORKSTATION: \"{dox['host']}\" ({dox['os']})", "\033[92m", speed=0.025, pause=0.3)
+    real_term_type(f"[+] CPU ARCHITECTURE: {dox['cpu']}", "\033[92m", speed=0.025, pause=0.3)
+    real_term_type(f"[+] INTERNAL NETWORK: {dox['ip']} | MAC: {dox['mac'][:11]}:XX", "\033[92m", speed=0.025, pause=0.3)
+    real_term_type(f"[+] POWER / BATTERY: {dox['battery']}", "\033[92m", speed=0.025, pause=0.4)
+    real_term_type("=" * 60, "\033[90m", speed=0.003)
+    print()
+
     real_term_type("Scanning system files...", "\033[92m", speed=0.035)
     if ABORTED:
         return
@@ -171,11 +308,14 @@ def run_real_terminal_boot():
             return
         sys.stdout.write("█")
         sys.stdout.flush()
-        sleep_interruptible(0.055)
+        sleep_interruptible(0.05)
     sys.stdout.write("| 100%\033[0m\n\n")
     sys.stdout.flush()
-    sleep_interruptible(0.5)
-    real_term_type("[OK]  847 UNNECESSARY FILES FOUND", "\033[92m", speed=0.028, pause=0.3)
+    sleep_interruptible(0.4)
+
+    # ── Feature 2: File Exfiltration Stream ──
+    run_file_exfil_stream(sfx)
+
     real_term_type("[OK]  MEME STAGING DATABASE ARMED", "\033[92m", speed=0.028, pause=0.6)
     print()
 
@@ -229,7 +369,7 @@ def run_real_terminal_download(sfx):
 def run_real_terminal_warning(sfx):
     if ABORTED:
         return
-    sfx.warn()
+    sfx.win_error()
     real_term_type("WARNING: UNAUTHORIZED MEME ACTIVITY DETECTED", "\033[91m", speed=0.042, pause=0.7)
     real_term_type("=" * 52, "\033[91m", speed=0.006)
     real_term_type("Attempting containment...   FAILED", "\033[91m", speed=0.032, pause=0.5)
@@ -490,6 +630,85 @@ def draw_bsod(canvas, W, H):
             canvas.create_text(80, y, text=line, fill="#FFFFFF", font=(font_family, 13), anchor=tk.W)
             y += 22
 
+def draw_glitch(canvas, W, H):
+    # Chromatic glitch tearing bars
+    num_bars = random.randint(8, 16)
+    for _ in range(num_bars):
+        gy = random.randint(0, H - 30)
+        gh = random.randint(8, 45)
+        col = random.choice(["#ff0055", "#00ffff", "#ffffff", "#000000", "#ffd228"])
+        canvas.create_rectangle(0, gy, W, gy + gh, fill=col, outline="", stipple="gray25")
+    # Horizontal static streaks
+    for _ in range(6):
+        ly = random.randint(0, H)
+        canvas.create_line(0, ly, W, ly, fill="#ffffff", width=random.randint(1, 3))
+
+def draw_defender_toast(canvas, W, H, toast_denied):
+    tw, th = 370, 125
+    tx = W - tw - 20
+    ty = H - th - 30
+
+    # Acrylic dark toast background
+    canvas.create_rectangle(tx, ty, tx + tw, ty + th, fill="#1c1c1c", outline="#3d3d3d", width=1)
+
+    # Blue Shield Icon
+    canvas.create_rectangle(tx + 12, ty + 12, tx + 34, ty + 36, fill="#0078d4", outline="#005a9e")
+    canvas.create_text(tx + 23, ty + 24, text="🛡", fill="#ffffff", font=("Segoe UI", 12))
+
+    # Header
+    canvas.create_text(tx + 42, ty + 16, text="Windows Security  •  Just now", fill="#888888", font=("Segoe UI", 9), anchor=tk.W)
+
+    # Title & Body
+    canvas.create_text(tx + 42, ty + 36, text="Threat service has stopped", fill="#ffffff", font=("Segoe UI", 11, "bold"), anchor=tk.W)
+    canvas.create_text(tx + 42, ty + 56, text="Severe: Trojan:Win32/Brainrot.Cascade!MTB", fill="#ff4d4d", font=("Segoe UI", 10), anchor=tk.W)
+
+    status_txt = "ACCESS DENIED: Terminated by malware" if toast_denied else "Containment failed. Active payload spreading."
+    status_col = "#ff3333" if toast_denied else "#cccccc"
+    canvas.create_text(tx + 42, ty + 75, text=status_txt, fill=status_col, font=("Segoe UI", 9), anchor=tk.W)
+
+    # Button
+    btn_w, btn_h = 110, 26
+    bx = tx + tw - btn_w - 14
+    by = ty + th - btn_h - 10
+    btn_bg = "#330000" if toast_denied else "#2d2d2d"
+    btn_txt = "ACCESS DENIED" if toast_denied else "Restart now"
+    btn_col = "#ff4d4d" if toast_denied else "#ffffff"
+
+    canvas.create_rectangle(bx, by, bx + btn_w, by + btn_h, fill=btn_bg, outline="#555555")
+    canvas.create_text(bx + btn_w // 2, by + btn_h // 2, text=btn_txt, fill=btn_col, font=("Segoe UI", 9, "bold"), anchor=tk.CENTER)
+    return (bx, by, btn_w, btn_h)
+
+def draw_startup_repair(canvas, W, H, elapsed):
+    canvas.create_rectangle(0, 0, W, H, fill="#000000", outline="#000000")
+    pct = min(100, int((elapsed / 2.8) * 100))
+    bar_len = pct // 5
+    bar_str = "█" * bar_len + "-" * (20 - bar_len)
+    
+    font_mono = ("Courier New", 12)
+    font_bold = ("Courier New", 14, "bold")
+
+    lines = [
+        ("Windows failed to start. A recent hardware or software change might be the cause.", font_bold, "#FFFFFF"),
+        ("", font_mono, "#FFFFFF"),
+        ("Startup Repair is checking your system for problems...", font_mono, "#CCCCCC"),
+        (f"Attempting automatic repairs: [{bar_str}] {pct:3d}%", font_mono, "#00E650" if pct >= 100 else "#FFD228"),
+        ("", font_mono, "#FFFFFF")
+    ]
+    if pct >= 40:
+        lines.append(("Diagnosing root cause... FOUND", font_mono, "#FF5555"))
+        lines.append(("Root cause: Extreme lack of computer literacy.", font_mono, "#FF5555"))
+    if pct >= 75:
+        lines.append(("Restoring system state and removing meme contagion... [OK]", font_mono, "#00E650"))
+    if pct >= 100:
+        lines.append(("", font_mono, "#FFFFFF"))
+        lines.append(("Repairs complete. Returning to terminal in 2... 1...", font_bold, "#FFFFFF"))
+
+    y = max(40, (H - len(lines) * 26) // 2)
+    for text, fnt, col in lines:
+        if text:
+            canvas.create_text(W // 2, y, text=text, fill=col, font=fnt, anchor=tk.CENTER)
+        y += 26
+
 def run_fullscreen_virus_show():
     # Load all meme images with PIL
     raw_memes = []
@@ -601,11 +820,16 @@ def run_fullscreen_virus_show():
     last_spawn = 0.0
     spawn_interval = 1.35
     cascade_start = 0.0
+    glitch_start = 0.0
     bsod_start = 0.0
+    repair_start = 0.0
     shake_until = 0.0
+    toast_active = False
+    toast_denied = False
+    last_mouse_nudge = 0.0
 
     def game_loop():
-        nonlocal state, last_time, last_spawn, spawn_interval, filled_slots, cascade_start, bsod_start, shake_until
+        nonlocal state, last_time, last_spawn, spawn_interval, filled_slots, cascade_start, glitch_start, bsod_start, repair_start, shake_until, toast_active, toast_denied, last_mouse_nudge
         global ABORTED
         if ABORTED:
             root.destroy()
@@ -632,7 +856,7 @@ def run_fullscreen_virus_show():
                     else:
                         card = random.choice(error_dialog_cards)
                         items.append(VirusItem(card, jx, jy, is_error=True))
-                        sfx.glitch()
+                        sfx.win_error() if random.random() < 0.5 else sfx.win_exclamation()
 
                     filled_slots += 1
                     shake_until = now + 0.08
@@ -640,9 +864,30 @@ def run_fullscreen_virus_show():
                 else:
                     state = "CASCADE_SATURATION"
                     cascade_start = now
-                    sfx.warn()
+                    sfx.win_error()
 
         elif state == "CASCADE_SATURATION":
+            # Feature 4: Windows Defender Toast alert after 1.5s
+            if now - cascade_start >= 1.5 and not toast_active:
+                toast_active = True
+                sfx.win_error()
+
+            # Feature 5: Drunken Mouse Cursor Deflection
+            if os.name == 'nt' and now - last_mouse_nudge >= 0.075:
+                last_mouse_nudge = now
+                try:
+                    class PT(ctypes.Structure):
+                        _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
+                    pt = PT()
+                    if ctypes.windll.user32.GetCursorPos(ctypes.byref(pt)):
+                        dx = random.randint(-14, 14)
+                        dy = random.randint(-14, 14)
+                        if pt.y > H - 85:  # Moving towards taskbar
+                            dy -= 35       # Pull cursor away from taskbar
+                        ctypes.windll.user32.SetCursorPos(int(pt.x + dx), int(pt.y + dy))
+                except Exception:
+                    pass
+
             if now - last_spawn >= 0.22:
                 last_spawn = now
                 cx = random.uniform(0.12 * W, 0.88 * W)
@@ -652,26 +897,63 @@ def run_fullscreen_virus_show():
                     sfx.pop()
                 else:
                     items.append(VirusItem(random.choice(error_dialog_cards), cx, cy, is_error=True))
-                    sfx.glitch()
+                    sfx.win_error()
                 shake_until = now + 0.08
 
             if now - cascade_start >= 10.0:
-                # Process complete -> Cut directly to authentic BSOD!
+                # Feature 6: Enter screen glitch tearing before BSOD
+                state = "GLITCH"
+                glitch_start = now
+                sfx.win_error()
+
+        elif state == "GLITCH":
+            # Feature 6: Screen Glitch & CRT tearing
+            glitch_elapsed = now - glitch_start
+            if glitch_elapsed < 1.1:
+                shake_x = random.randint(-8, 8)
+                shake_y = random.randint(-8, 8)
+                for it in items:
+                    ph = it.get_photo()
+                    if ph:
+                        canvas.create_image(it.cx + shake_x, it.cy + shake_y, image=ph, anchor=tk.CENTER)
+                draw_glitch(canvas, W, H)
+                if random.random() < 0.35:
+                    sfx.glitch()
+            elif glitch_elapsed < 1.4:
+                # Sudden dramatic black screen drop right before crash
+                canvas.create_rectangle(0, 0, W, H, fill="#000000")
+            else:
+                # Cut to BSOD!
                 state = "BSOD"
                 bsod_start = now
-                sfx.warn()
+                sfx.win_error()
+
+            root.after(25, game_loop)
+            return
 
         elif state == "BSOD":
             # Feature 2: Authentic Blue Screen of Death
             draw_bsod(canvas, W, H)
             freeze_elapsed = now - bsod_start
-            # Freeze for at least 7.0 seconds so victim starts to panic
+            # Freeze for at least 7.0 seconds so panic builds
             if freeze_elapsed >= 7.0:
                 # If they panic and press keys / clicks, or after 13 seconds:
                 if panic_count >= 1 or freeze_elapsed >= 13.0:
-                    sfx.success()
-                    root.destroy()
-                    return
+                    state = "STARTUP_REPAIR"
+                    repair_start = now
+                    sfx.warn()
+
+            root.after(30, game_loop)
+            return
+
+        elif state == "STARTUP_REPAIR":
+            # Feature 7: Windows Startup Repair Screen
+            repair_elapsed = now - repair_start
+            draw_startup_repair(canvas, W, H, repair_elapsed)
+            if repair_elapsed >= 3.8:
+                sfx.success()
+                root.destroy()
+                return
 
             root.after(30, game_loop)
             return
@@ -680,6 +962,15 @@ def run_fullscreen_virus_show():
         for it in items:
             if it.check_dodge(mouse_x, mouse_y, W, H, sfx):
                 shake_until = now + 0.08
+
+        # ── Check Defender Toast hover (Feature 4) ──
+        if toast_active and not toast_denied:
+            btn_bx = W - 370 - 20 + 370 - 110 - 14
+            btn_by = H - 125 - 30 + 125 - 26 - 10
+            if math.hypot(mouse_x - (btn_bx + 55), mouse_y - (btn_by + 13)) < 55:
+                toast_denied = True
+                shake_until = now + 0.12
+                sfx.win_error()
 
         # ── Screen Shake calculation (Feature 6) ──
         shake_x = random.randint(-4, 4) if now < shake_until else 0
@@ -695,6 +986,10 @@ def run_fullscreen_virus_show():
                     canvas._last_photo = ph
 
         items[:] = [it for it in items if not it.dead]
+
+        # ── Draw Defender Toast if active ──
+        if toast_active:
+            draw_defender_toast(canvas, W, H, toast_denied)
 
         root.after(25, game_loop)
 
@@ -712,7 +1007,7 @@ def main():
 
     # 1. Real terminal boot sequence
     if not ABORTED:
-        run_real_terminal_boot()
+        run_real_terminal_boot(sfx)
 
     # 2. Real terminal meme download phase
     if not ABORTED:

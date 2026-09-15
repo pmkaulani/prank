@@ -646,6 +646,12 @@ class WebSFX {{
     const f = 1400 + Math.random() * 450;
     this.playTone(f, 50, "sine", 0.35);
   }}
+  winError() {{
+    this.playTone(180, 480, "sawtooth", 0.6);
+  }}
+  winExclamation() {{
+    this.playTone(480, 160, "triangle", 0.45);
+  }}
 }}
 
 /* ==========================================================================
@@ -672,6 +678,10 @@ class WebChaosPrank {{
     this.panicCount = 0;
     this.shakeUntil = 0;
     this.bsodStart = 0;
+    this.glitchStart = 0;
+    this.repairStart = 0;
+    this.toastActive = false;
+    this.toastDenied = false;
     this.resize();
     window.addEventListener("resize", () => this.resize());
     window.addEventListener("keydown", (e) => this.onKey(e));
@@ -738,10 +748,23 @@ class WebChaosPrank {{
       "[OK]  ADMINISTRATOR ACCESS GRANTED",
       "[OK]  VICTIM LOCATED",
       "",
+      "============================================================",
+      "[+] TARGET USER IDENTIFIED: \"Admin\"",
+      "[+] WORKSTATION: \"WIN11-PC\" (Windows 11 Pro 64-bit)",
+      "[+] CPU: Intel(R) Core(TM) i7-12700H @ 2.70GHz",
+      "[+] INTERNAL IP: 192.168.1.104 | MAC: 3C:7C:3F:8A:XX:XX",
+      "[+] POWER STATUS: 92% [AC_ONLINE]",
+      "============================================================",
+      "",
       "Scanning system files...",
       "  |████████████████████| 100%",
       "",
-      "[OK]  847 UNNECESSARY FILES FOUND",
+      "Targeting user directories for exfiltration...",
+      "[EXFILTRATE] C:\\Users\\Admin\\Documents\\passwords.xlsx ....... [ENCRYPTED]",
+      "[EXFILTRATE] C:\\Users\\Admin\\Pictures\\IMG_4921.jpg ......... [UPLOADING]",
+      "[EXFILTRATE] Chrome Session Master Key & Cookies .............. [EXTRACTED]",
+      "[EXFILTRATE] Remote Gateway: 185.220.101.42:4444 ............ [CONNECTED]",
+      "",
       "[OK]  MEME STAGING DATABASE ARMED",
       "",
       "Preparing payload..."
@@ -936,6 +959,10 @@ class WebChaosPrank {{
     else if (this.state === "CASCADE_SATURATION") {{
       this.spawnTimer += dt;
       this.cascadeTimer += dt;
+      if (this.cascadeTimer >= 1.5 && !this.toastActive) {{
+        this.toastActive = true;
+        this.sfx.winError();
+      }}
       if (this.spawnTimer >= 0.22) {{
         this.spawnTimer = 0;
         this.spawnVirusItem();
@@ -947,25 +974,45 @@ class WebChaosPrank {{
         }}
       }});
       if (this.cascadeTimer >= 10.0) {{
-        this.state = "BSOD";
-        this.bsodStart = performance.now();
-        this.panicCount = 0;
-        this.sfx.warn();
+        this.state = "GLITCH";
+        this.glitchStart = performance.now();
+        this.sfx.winError();
       }}
     }}
 
-    // 5. BSOD (Phase 6 - Windows Blue Screen of Death with Panic Freeze)
+    // 5. GLITCH (Phase 6 - Screen Tearing & Stutter)
+    else if (this.state === "GLITCH") {{
+      const elapsed = (performance.now() - this.glitchStart) / 1000;
+      if (elapsed >= 1.4) {{
+        this.state = "BSOD";
+        this.bsodStart = performance.now();
+        this.panicCount = 0;
+        this.sfx.winError();
+      }}
+    }}
+
+    // 6. BSOD (Phase 7 - Windows Blue Screen of Death with Panic Freeze)
     else if (this.state === "BSOD") {{
       const elapsed = (performance.now() - this.bsodStart) / 1000;
       if (elapsed >= 7.0) {{
         if (this.panicCount >= 1 || elapsed >= 13.0) {{
-          this.sfx.success();
-          this.triggerEmergencyExit();
+          this.state = "STARTUP_REPAIR";
+          this.repairStart = performance.now();
+          this.sfx.warn();
         }}
       }}
     }}
 
-    // 6. CLEANUP (Phase 7 - Terminal restore)
+    // 7. STARTUP REPAIR (Phase 8 - Diagnostic Progress)
+    else if (this.state === "STARTUP_REPAIR") {{
+      const elapsed = (performance.now() - this.repairStart) / 1000;
+      if (elapsed >= 3.8) {{
+        this.sfx.success();
+        this.triggerEmergencyExit();
+      }}
+    }}
+
+    // 8. CLEANUP (Phase 9 - Terminal restore)
     else if (this.state === "CLEANUP") {{
       this.cleanupTimer += dt;
       if (!this.cleanupLines) {{
@@ -1255,14 +1302,163 @@ class WebChaosPrank {{
     }}
   }}
 
+  drawGlitch() {{
+    const numBars = 10 + Math.floor(Math.random() * 8);
+    for (let i = 0; i < numBars; i++) {{
+      const gy = Math.random() * (this.H - 30);
+      const gh = 8 + Math.random() * 35;
+      const cols = ["rgba(255, 0, 85, 0.35)", "rgba(0, 255, 255, 0.35)", "rgba(255, 255, 255, 0.4)", "rgba(0, 0, 0, 0.6)"];
+      this.ctx.fillStyle = cols[Math.floor(Math.random() * cols.length)];
+      this.ctx.fillRect(0, gy, this.W, gh);
+    }}
+    for (let i = 0; i < 5; i++) {{
+      const ly = Math.random() * this.H;
+      this.ctx.fillStyle = "#ffffff";
+      this.ctx.fillRect(0, ly, this.W, 2);
+    }}
+  }}
+
+  drawDefenderToast() {{
+    const tw = 370, th = 125;
+    const tx = this.W - tw - 20;
+    const ty = this.H - th - 30;
+
+    // Toast Card
+    this.ctx.fillStyle = "#1c1c1c";
+    this.ctx.fillRect(tx, ty, tw, th);
+    this.ctx.strokeStyle = "#3d3d3d";
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeRect(tx, ty, tw, th);
+
+    // Shield
+    this.ctx.fillStyle = "#0078d4";
+    this.ctx.fillRect(tx + 12, ty + 12, 22, 24);
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.font = "12px 'Segoe UI', sans-serif";
+    this.ctx.fillText("🛡", tx + 16, ty + 28);
+
+    // Header
+    this.ctx.font = "9px 'Segoe UI', sans-serif";
+    this.ctx.fillStyle = "#888888";
+    this.ctx.fillText("Windows Security  •  Just now", tx + 42, ty + 24);
+
+    // Title & Body
+    this.ctx.font = "bold 11px 'Segoe UI', sans-serif";
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.fillText("Threat service has stopped", tx + 42, ty + 44);
+    this.ctx.font = "10px 'Segoe UI', sans-serif";
+    this.ctx.fillStyle = "#ff4d4d";
+    this.ctx.fillText("Severe: Trojan:Win32/Brainrot.Cascade!MTB", tx + 42, ty + 64);
+
+    const statusTxt = this.toastDenied ? "ACCESS DENIED: Terminated by malware" : "Containment failed. Active payload spreading.";
+    this.ctx.fillStyle = this.toastDenied ? "#ff3333" : "#cccccc";
+    this.ctx.font = "9px 'Segoe UI', sans-serif";
+    this.ctx.fillText(statusTxt, tx + 42, ty + 83);
+
+    // Button
+    const btnW = 110, btnH = 26;
+    const bx = tx + tw - btnW - 14;
+    const by = ty + th - btnH - 10;
+    this.ctx.fillStyle = this.toastDenied ? "#330000" : "#2d2d2d";
+    this.ctx.fillRect(bx, by, btnW, btnH);
+    this.ctx.strokeStyle = "#555555";
+    this.ctx.strokeRect(bx, by, btnW, btnH);
+    this.ctx.fillStyle = this.toastDenied ? "#ff4d4d" : "#ffffff";
+    this.ctx.font = "bold 9px 'Segoe UI', sans-serif";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(this.toastDenied ? "ACCESS DENIED" : "Restart now", bx + btnW / 2, by + 17);
+    this.ctx.textAlign = "left";
+
+    // Mouse proximity check
+    if (!this.toastDenied) {{
+      const dist = Math.hypot(this.mouseX - (bx + btnW / 2), this.mouseY - (by + btnH / 2));
+      if (dist < 55) {{
+        this.toastDenied = true;
+        this.shakeUntil = performance.now() + 120;
+        this.sfx.winError();
+      }}
+    }}
+  }}
+
+  drawStartupRepair(elapsed) {{
+    this.ctx.fillStyle = "#000000";
+    this.ctx.fillRect(0, 0, this.W, this.H);
+
+    const pct = Math.min(100, Math.floor((elapsed / 2.8) * 100));
+    const barLen = Math.floor(pct / 5);
+    const barStr = "█".repeat(barLen) + "-".repeat(20 - barLen);
+
+    const lines = [
+      {{ t: "Windows failed to start. A recent hardware or software change might be the cause.", f: "bold 14px 'Courier New', monospace", c: "#ffffff" }},
+      {{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }},
+      {{ t: "Startup Repair is checking your system for problems...", f: "12px 'Courier New', monospace", c: "#cccccc" }},
+      {{ t: `Attempting automatic repairs: [${{barStr}}] ${{pct}}%`, f: "12px 'Courier New', monospace", c: pct >= 100 ? "#00e650" : "#ffd228" }},
+      {{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }}
+    ];
+
+    if (pct >= 40) {{
+      lines.push({{ t: "Diagnosing root cause... FOUND", f: "12px 'Courier New', monospace", c: "#ff5555" }});
+      lines.push({{ t: "Root cause: Extreme lack of computer literacy.", f: "12px 'Courier New', monospace", c: "#ff5555" }});
+    }}
+    if (pct >= 75) {{
+      lines.push({{ t: "Restoring system state and removing meme contagion... [OK]", f: "12px 'Courier New', monospace", c: "#00e650" }});
+    }}
+    if (pct >= 100) {{
+      lines.push({{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }});
+      lines.push({{ t: "Repairs complete. Returning to terminal in 2... 1...", f: "bold 14px 'Courier New', monospace", c: "#ffffff" }});
+    }}
+
+    let y = Math.max(40, (this.H - lines.length * 26) / 2);
+    this.ctx.textAlign = "center";
+    for (let i = 0; i < lines.length; i++) {{
+      if (lines[i].t) {{
+        this.ctx.font = lines[i].f;
+        this.ctx.fillStyle = lines[i].c;
+        this.ctx.fillText(lines[i].t, this.W / 2, y);
+      }}
+      y += 26;
+    }}
+    this.ctx.textAlign = "left";
+  }}
+
   render() {{
-    // 1. BSOD State
+    // 1. Glitch State
+    if (this.state === "GLITCH") {{
+      const elapsed = (performance.now() - this.glitchStart) / 1000;
+      if (elapsed < 1.1) {{
+        this.drawSimulatedDesktop();
+        let shakeX = (Math.random() - 0.5) * 16;
+        let shakeY = (Math.random() - 0.5) * 16;
+        this.ctx.save();
+        this.ctx.translate(shakeX, shakeY);
+        this.sprites.forEach(s => {{
+          if (s.isMeme) this.drawRetroVirusCard(s);
+          else this.drawErrorDialog(s);
+        }});
+        this.ctx.restore();
+        this.drawGlitch();
+        if (Math.random() < 0.35) this.sfx.glitch();
+      }} else {{
+        this.ctx.fillStyle = "#000000";
+        this.ctx.fillRect(0, 0, this.W, this.H);
+      }}
+      return;
+    }}
+
+    // 2. BSOD State
     if (this.state === "BSOD") {{
       this.drawBSOD();
       return;
     }}
 
-    // 2. Terminal Boot & Download States
+    // 3. Startup Repair State
+    if (this.state === "STARTUP_REPAIR") {{
+      const elapsed = (performance.now() - this.repairStart) / 1000;
+      this.drawStartupRepair(elapsed);
+      return;
+    }}
+
+    // 4. Terminal Boot & Download States
     if (this.state === "BOOT" || this.state === "DOWNLOADING") {{
       this.ctx.fillStyle = "#040608";
       this.ctx.fillRect(0, 0, this.W, this.H);
@@ -1290,7 +1486,7 @@ class WebChaosPrank {{
       return;
     }}
 
-    // 3. Realistic Desktop Meme & Popup Chaos Phases
+    // 5. Realistic Desktop Meme & Popup Chaos Phases
     if (this.state === "TILING_GAPS" || this.state === "CASCADE_SATURATION") {{
       // Realistic desktop wallpaper & taskbar
       this.drawSimulatedDesktop();
@@ -1314,11 +1510,14 @@ class WebChaosPrank {{
       }});
 
       this.ctx.restore();
-      // Realistic desktop: No coverage HUD and no bottom status bar during memes!
+
+      if (this.toastActive) {{
+        this.drawDefenderToast();
+      }}
       return;
     }}
 
-    // 4. Cleanup & Roast Finale
+    // 6. Cleanup & Roast Finale
     if (this.state === "CLEANUP") {{
       this.ctx.fillStyle = "#040608";
       this.ctx.fillRect(0, 0, this.W, this.H);
