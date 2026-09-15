@@ -32,7 +32,7 @@ try:
 except Exception:
     pass
 
-# Enable Windows ANSI virtual terminal processing
+# Enable Windows ANSI virtual terminal processing & disable QuickEdit mode
 if os.name == 'nt':
     import ctypes
     import winreg
@@ -43,6 +43,12 @@ if os.name == 'nt':
         kernel32.GetConsoleMode(hOut, ctypes.byref(mode))
         kernel32.SetConsoleMode(hOut, mode.value | 0x0004)
         ctypes.windll.kernel32.SetConsoleTitleW("System Diagnostic & Security Tool")
+
+        # Disable QuickEdit Mode (0x0040) so clicking inside the console doesn't freeze the script
+        hIn = kernel32.GetStdHandle(-10)
+        in_mode = ctypes.c_ulong()
+        if kernel32.GetConsoleMode(hIn, ctypes.byref(in_mode)):
+            kernel32.SetConsoleMode(hIn, (in_mode.value & ~0x0040) | 0x0080)
     except Exception:
         pass
 
@@ -120,6 +126,30 @@ ABORTED = False
 EXIT_CODE = "2411"
 GLOBAL_ABORT_CALLBACK = None
 
+def trigger_emergency_shutdown():
+    global ABORTED
+    ABORTED = True
+    try:
+        if os.name == 'nt':
+            hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+            if hwnd:
+                ctypes.windll.user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+                ctypes.windll.user32.SetForegroundWindow(hwnd)
+    except Exception:
+        pass
+
+    try:
+        if GLOBAL_ABORT_CALLBACK:
+            GLOBAL_ABORT_CALLBACK()
+    except Exception:
+        pass
+
+    sys.stdout.write("\n\n\033[93m[!] EMERGENCY CODE 2411 DETECTED — ABORTING IMMEDIATELY.\033[0m\n")
+    sys.stdout.write("\033[92m[OK] Prank halted. Control returned to terminal.\033[0m\n\n")
+    sys.stdout.flush()
+    time.sleep(0.04)
+    os._exit(0)
+
 VK_DIGITS = {
     0x30: '0', 0x31: '1', 0x32: '2', 0x33: '3', 0x34: '4',
     0x35: '5', 0x36: '6', 0x37: '7', 0x38: '8', 0x39: '9',
@@ -129,7 +159,7 @@ VK_DIGITS = {
 
 def start_global_exit_listener():
     def _listener():
-        global ABORTED, GLOBAL_ABORT_CALLBACK
+        global ABORTED
         buf = ""
         prev_down = set()
         user32 = ctypes.windll.user32 if (os.name == 'nt' and hasattr(ctypes, 'windll')) else None
@@ -143,12 +173,7 @@ def start_global_exit_listener():
                             prev_down.add(vk)
                             buf = (buf + digit)[-4:]
                             if buf == EXIT_CODE:
-                                ABORTED = True
-                                if GLOBAL_ABORT_CALLBACK:
-                                    try:
-                                        GLOBAL_ABORT_CALLBACK()
-                                    except Exception:
-                                        pass
+                                trigger_emergency_shutdown()
                                 return
                         elif not is_down and vk in prev_down:
                             prev_down.discard(vk)
@@ -158,18 +183,13 @@ def start_global_exit_listener():
             # 2. Console input buffer fallback
             try:
                 import msvcrt
-                if msvcrt.kbhit():
+                while msvcrt.kbhit():
                     ch = msvcrt.getch()
                     char_str = ch.decode('latin1', errors='ignore')
                     if char_str.isdigit():
                         buf = (buf + char_str)[-4:]
                         if buf == EXIT_CODE:
-                            ABORTED = True
-                            if GLOBAL_ABORT_CALLBACK:
-                                try:
-                                    GLOBAL_ABORT_CALLBACK()
-                                except Exception:
-                                    pass
+                            trigger_emergency_shutdown()
                             return
             except Exception:
                 pass
@@ -204,31 +224,94 @@ def real_term_type(line, color="\033[92m", speed=0.036, pause=0.3):
         sleep_interruptible(pause)
 
 def get_system_dox_info():
-    # 100% simulated fake hardware & user specs for privacy safety and comedic effect
+    user = os.environ.get("USERNAME") or getpass.getuser()
+    host = socket.gethostname()
+    os_name = f"{platform.system()} {platform.release()}"
+    try:
+        ip = socket.gethostbyname(host)
+    except Exception:
+        ip = "192.168.1.104"
+    mac = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff) for ele in range(0,8*6,8)][::-1]).upper()
+    
+    cpu_name = platform.processor() or "Multi-Core x64 Processor"
+    if os.name == 'nt':
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+            cpu_val, _ = winreg.QueryValueEx(key, "ProcessorNameString")
+            winreg.CloseKey(key)
+            if cpu_val:
+                cpu_name = cpu_val.strip()
+        except Exception:
+            pass
+
+    battery_str = "AC_POWER [ONLINE]"
+    if os.name == 'nt':
+        try:
+            class SPS(ctypes.Structure):
+                _fields_ = [
+                    ('ACLineStatus', ctypes.c_byte),
+                    ('BatteryFlag', ctypes.c_byte),
+                    ('BatteryLifePercent', ctypes.c_byte),
+                    ('Reserved1', ctypes.c_byte),
+                    ('BatteryLifeTime', ctypes.c_ulong),
+                    ('BatteryFullLifeTime', ctypes.c_ulong),
+                ]
+            sps = SPS()
+            if ctypes.windll.kernel32.GetSystemPowerStatus(ctypes.byref(sps)):
+                pct = sps.BatteryLifePercent
+                if 0 <= pct <= 100:
+                    ac = "CHARGING" if sps.ACLineStatus == 1 else "DISCHARGING"
+                    battery_str = f"{pct}% [{ac}]"
+        except Exception:
+            pass
+
     return {
-        "user": "P_KAULANI",
-        "host": "DESKTOP-7X4N2",
-        "os": "Windows 11 Pro 64-bit (Build 26100.meme)",
-        "ip": "192.168.0.███",
-        "mac": "00:1A:2B:3C:██:██",
-        "cpu": "AMD Ryzen 9 7950X (OVERHEATING - 94°C)",
-        "battery": "4% [PLUG IN IMMEDIATELY OR DIE]"
+        "user": user,
+        "host": host,
+        "os": os_name,
+        "ip": ip,
+        "mac": mac,
+        "cpu": cpu_name,
+        "battery": battery_str
     }
 
 def run_file_exfil_stream(sfx):
     if ABORTED:
         return
     real_term_type("Targeting user directories for exfiltration...", "\033[93m", speed=0.025, pause=0.3)
-    fake_files = [
-        r"C:\Users\Target\Desktop\Final_Project_v2_REAL_FINAL(1).docx",
-        r"C:\Users\Target\Documents\passwords_dont_open_serious.txt",
-        r"C:\Users\Target\Pictures\embarrassing_childhood_photo.png",
-        r"C:\Users\Target\Downloads\how_to_talk_to_girls.pdf",
-        r"C:\Users\Target\AppData\Local\Browsing_History_3AM.db",
-        r"C:\Users\Target\Desktop\crypto_wallet_seed_words_2024.env",
-        r"C:\Users\Target\Documents\unfinished_novel_chapter_1.docx"
+    user_home = os.path.expanduser("~")
+    cand_dirs = [
+        os.path.join(user_home, "Desktop"),
+        os.path.join(user_home, "Documents"),
+        os.path.join(user_home, "Downloads"),
+        os.path.join(user_home, "Pictures")
     ]
-    for fpath in fake_files:
+    found_files = []
+    for d in cand_dirs:
+        if os.path.exists(d):
+            try:
+                for entry in os.scandir(d):
+                    if entry.is_file() and not entry.name.startswith(('.', '~', '$')):
+                        found_files.append(entry.path)
+                        if len(found_files) >= 7:
+                            break
+            except Exception:
+                pass
+        if len(found_files) >= 7:
+            break
+
+    decoys = [
+        os.path.join(user_home, "Desktop", "Final_Project_v2_REAL_FINAL(1).docx"),
+        os.path.join(user_home, "Documents", "passwords_dont_open_serious.txt"),
+        os.path.join(user_home, "Pictures", "embarrassing_childhood_photo.png"),
+        os.path.join(user_home, "Downloads", "how_to_talk_to_girls.pdf"),
+        os.path.join(user_home, "AppData", "Local", "Google", "Chrome", "Login Data")
+    ]
+    for dec in decoys:
+        if len(found_files) < 7:
+            found_files.append(dec)
+
+    for fpath in found_files[:7]:
         if ABORTED:
             return
         disp = fpath if len(fpath) <= 46 else ("..." + fpath[-43:])
@@ -851,8 +934,7 @@ def run_fullscreen_virus_show():
         if digit:
             code_buf = (code_buf + digit)[-4:]
             if code_buf == "2411":
-                ABORTED = True
-                root.destroy()
+                trigger_emergency_shutdown()
                 return
 
         if state == "BSOD":
